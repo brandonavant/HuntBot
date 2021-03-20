@@ -26,7 +26,7 @@ namespace HuntBot.Domain.SeedWork
         public int Version { get; set; }
 
         /// <summary>
-        /// Initialized a new instance of the AggregateRoot class.
+        /// Initialized a new instance of <see cref="AggregateRoot"/>.
         /// </summary>
         protected AggregateRoot()
         {
@@ -78,6 +78,14 @@ namespace HuntBot.Domain.SeedWork
             {
                 When(@event);
                 Version++;
+            }
+        }
+
+        protected static void CheckRule(IBusinessRule rule)
+        {
+            if (rule.IsBroken())
+            {
+                throw new BusinessRuleValidationException(rule);
             }
         }
     }

@@ -1,3 +1,4 @@
+using HuntBot.Domain.HuntBotGame.Rules;
 using HuntBot.Domain.SeedWork;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,25 @@ namespace HuntBot.Domain.HuntBotGame
         /// <summary>
         /// List of game participants.
         /// </summary>
-        public List<HubtBotGameParticipant> Participants { get; set; }
+        public List<HuntBotGameParticipant> Participants { get; set; }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="HuntBotGame"/>.
+        /// </summary>
+        /// <param name="title">The title of the game.</param>
+        /// <param name="startDate">The date and time in which the game begins.</param>
+        /// <param name="endDate">The date and time in which the game ends.</param>
+        /// <returns></returns>
+        public static HuntBotGame CreateNewHuntBotGame(
+            string title, 
+            DateTime startDate, 
+            DateTime endDate, 
+            IGameUniquenessChecker gameUniquenessChecker
+        )
+        {
+            CheckRule(new GameTitleLengthMustBeCorrectRule(title));
+            CheckRule(new GameTitleMustBeUniqueRule(title, gameUniquenessChecker));
+        }
 
         /// <summary>
         /// Matches a event to the event type and applies the corresponding changes to the aggregate.

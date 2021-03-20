@@ -14,8 +14,13 @@ namespace HuntBot.Domain.HuntBotGame
         public string Name { get; private set; }
 
         /// <summary>
+        /// The total number of game points that the participant has earned.
+        /// </summary>
+        public int GamePoints { get; set; }
+
+        /// <summary>
         /// List of game objects, which a participant has found that the participant has found.
         /// </summary>
-        public List<HuntBotGameObject> FoundObjects { get; set; }
+        public List<HuntBotGameObjectFind> FoundObjects { get; set; }
     }
 }
