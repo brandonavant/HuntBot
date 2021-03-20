@@ -68,6 +68,7 @@ namespace HuntBot.Domain.HuntBotGame
             CheckRule(new GameTitleLengthMustBeCorrectRule(title));
             CheckRule(new GameTitleMustBeUniqueRule(title, gameUniquenessChecker));
             CheckRule(new GameStartDateMustNotBeInThePastRule(startDate));
+            //CheckRule(new GameEndDateMustBeAfterStartDateRule(endDate));
 
             return new HuntBotGame(id, title, startDate, endDate);
         }

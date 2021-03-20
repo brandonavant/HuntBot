@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HuntBot.Domain", "src\HuntB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HuntBot.Infrastructure", "src\HuntBot.Infrastructure\HuntBot.Infrastructure.csproj", "{0514D648-ACDB-43E1-9593-4E377B365062}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HuntBot.Tests", "src\HuntBot.Tests\HuntBot.Tests.csproj", "{0DFABCC1-FAA5-436D-88C8-65E56F646302}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +74,17 @@ Global
 		{0514D648-ACDB-43E1-9593-4E377B365062}.Release|x64.Build.0 = Release|Any CPU
 		{0514D648-ACDB-43E1-9593-4E377B365062}.Release|x86.ActiveCfg = Release|Any CPU
 		{0514D648-ACDB-43E1-9593-4E377B365062}.Release|x86.Build.0 = Release|Any CPU
+		{0DFABCC1-FAA5-436D-88C8-65E56F646302}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DFABCC1-FAA5-436D-88C8-65E56F646302}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DFABCC1-FAA5-436D-88C8-65E56F646302}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0DFABCC1-FAA5-436D-88C8-65E56F646302}.Debug|x64.Build.0 = Debug|Any CPU
+		{0DFABCC1-FAA5-436D-88C8-65E56F646302}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0DFABCC1-FAA5-436D-88C8-65E56F646302}.Debug|x86.Build.0 = Debug|Any CPU
+		{0DFABCC1-FAA5-436D-88C8-65E56F646302}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DFABCC1-FAA5-436D-88C8-65E56F646302}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DFABCC1-FAA5-436D-88C8-65E56F646302}.Release|x64.ActiveCfg = Release|Any CPU
+		{0DFABCC1-FAA5-436D-88C8-65E56F646302}.Release|x64.Build.0 = Release|Any CPU
+		{0DFABCC1-FAA5-436D-88C8-65E56F646302}.Release|x86.ActiveCfg = Release|Any CPU
+		{0DFABCC1-FAA5-436D-88C8-65E56F646302}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
