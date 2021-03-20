@@ -31,6 +31,26 @@ namespace HuntBot.Domain.HuntBotGame
         public List<HuntBotGameParticipant> Participants { get; set; }
 
         /// <summary>
+        /// Initializes a new instance of <see cref="HuntBotGame"/>.
+        /// </summary>
+        /// <param name="id">The id of the newly created game..</param>
+        /// <param name="title">The title of the newly-created game.</param>
+        /// <param name="startDate">The date and time in which the game begins.</param>
+        /// <param name="endDate">The date and time in which the game ends.</param>
+        private HuntBotGame(Guid id, string title, DateTime startDate, DateTime endDate)
+        {
+            Participants = new List<HuntBotGameParticipant>();
+
+            ApplyChange(new Events.HuntBotGameCreated
+            {
+                Id = id,
+                Title = title,
+                StartDate = startDate,
+                EndDate = endDate
+            });
+        }
+
+        /// <summary>
         /// Creates a new instance of <see cref="HuntBotGame"/>.
         /// </summary>
         /// <param name="title">The title of the game.</param>
@@ -38,6 +58,7 @@ namespace HuntBot.Domain.HuntBotGame
         /// <param name="endDate">The date and time in which the game ends.</param>
         /// <returns></returns>
         public static HuntBotGame CreateNewHuntBotGame(
+            Guid id,
             string title, 
             DateTime startDate, 
             DateTime endDate, 
@@ -46,6 +67,9 @@ namespace HuntBot.Domain.HuntBotGame
         {
             CheckRule(new GameTitleLengthMustBeCorrectRule(title));
             CheckRule(new GameTitleMustBeUniqueRule(title, gameUniquenessChecker));
+            CheckRule(new GameStartDateMustNotBeInThePastRule(startDate));
+
+            return new HuntBotGame(id, title, startDate, endDate);
         }
 
         /// <summary>

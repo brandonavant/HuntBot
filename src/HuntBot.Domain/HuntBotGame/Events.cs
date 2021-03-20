@@ -1,10 +1,38 @@
-﻿namespace HuntBot.Domain.HuntBotGame
+﻿using System;
+
+namespace HuntBot.Domain.HuntBotGame
 {
     /// <summary>
     /// Events that can occur against the <see cref="HuntBotGame" aggregate./>
     /// </summary>
     public static class Events
     {
+        /// <summary>
+        /// Aggregate event that is raised when a new <see cref="HuntBotGame" is created./>
+        /// </summary>
+        public class HuntBotGameCreated
+        {
+            /// <summary>
+            /// The Id of the newly-created game.
+            /// </summary>
+            public Guid Id { get; init; }
+
+            /// <summary>
+            /// The title of the newly-created game.
+            /// </summary>
+            public string Title { get; init; }
+
+            /// <summary>
+            /// The VRT date and time in which the game starts.
+            /// </summary>
+            public DateTime StartDate { get; init; }
+
+            /// <summary>
+            /// The VRT date and time in which the game ends.
+            /// </summary>
+            public DateTime EndDate { get; init; }
+        }
+
         /// <summary>
         /// Aggregate event that is raised when a game participant is added.
         /// </summary>
