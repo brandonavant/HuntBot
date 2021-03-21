@@ -1,11 +1,6 @@
 ﻿using HuntBot.Domain.SeedWork;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace HuntBot.Domain.HuntBotGame.Rules
+namespace HuntBot.Domain.HuntBotGames.Rules
 {
     /// <summary>
     /// Rule that ensures that the game title has not already been used.
@@ -33,11 +28,12 @@ namespace HuntBot.Domain.HuntBotGame.Rules
         /// <param name="title">The game title whose character length is being checked.</param>
         public GameTitleMustBeUniqueRule(string title, IGameUniquenessChecker titleUniquenessChecker)
         {
+            _title = title;
             _titleUniquenessChecker = titleUniquenessChecker;
         }
 
         /// <summary>
-        /// Indicates whether or not a business rule is broken.
+        /// Indicates whether or not the business rule is broken.
         /// </summary>
         /// <returns>True if the rule is broken.</returns>
         public bool IsBroken() => !_titleUniquenessChecker.IsUnique(_title);

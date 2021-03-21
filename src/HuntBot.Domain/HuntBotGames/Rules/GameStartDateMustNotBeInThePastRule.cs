@@ -1,7 +1,7 @@
 ﻿using HuntBot.Domain.SeedWork;
 using System;
 
-namespace HuntBot.Domain.HuntBotGame.Rules
+namespace HuntBot.Domain.HuntBotGames.Rules
 {
     /// <summary>
     /// Rule that ensures that the given StartDate does not occur in the past.
@@ -16,7 +16,7 @@ namespace HuntBot.Domain.HuntBotGame.Rules
         /// <summary>
         /// The error message to be displayed to the user.
         /// </summary>
-        public string ErrorMessage => "You must choose a date that occurs in the future..";
+        public string ErrorMessage => "You must choose a start date that occurs in the future.";
 
         /// <summary>
         /// Initializes a new instance of <see cref="GameStartDateMustNotBeInThePastRule"/>.
@@ -28,14 +28,12 @@ namespace HuntBot.Domain.HuntBotGame.Rules
         }
 
         /// <summary>
-        /// Indicates whether or not a business rule is broken.
+        /// Indicates whether or not the business rule is broken.
         /// </summary>
         /// <returns>True if the rule is broken.</returns>
         public bool IsBroken()
         {
-            var currentVrt = DateTime.UtcNow.AddHours(-2);
-
-            return _startDate < currentVrt;
+            return _startDate < DateTime.UtcNow;
         }
     }
 }

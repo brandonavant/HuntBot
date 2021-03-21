@@ -1,4 +1,4 @@
-﻿namespace HuntBot.Domain.HuntBotGame
+﻿namespace HuntBot.Domain.HuntBotGames
 {
     public interface IGameUniquenessChecker
     {

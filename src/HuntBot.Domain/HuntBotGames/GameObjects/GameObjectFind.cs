@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace HuntBot.Domain.HuntBotGame
+namespace HuntBot.Domain.HuntBotGames.GameObjects
 {
-    public record HuntBotGameObjectFind
+    public record GameObjectFind
     {
         /// <summary>
-        /// The Id of the <see cref="HuntBotGameObject"/>, which the participant found.
+        /// The Id of the <see cref="GameObject"/>, which the participant found.
         /// </summary>
         public int ObjectId { get; set; }
 

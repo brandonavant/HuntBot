@@ -39,6 +39,8 @@ namespace HuntBot.App
             // TODO: Determine if we are continuing a previous event (indicated by config file, for now).
             // TODO: Begin scanning each world. Once scanning is complete, store the results (i.e. egg count) in database.
 
+            // TODO: When a user enters the world, check the CitizenName stored in the database for their CitizenNumber. If it is different, change it in the DB.
+
             return Task.CompletedTask;
         }
     }

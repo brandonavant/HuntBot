@@ -1,6 +1,6 @@
 ﻿using HuntBot.Domain.SeedWork;
 
-namespace HuntBot.Domain.HuntBotGame.Rules
+namespace HuntBot.Domain.HuntBotGames.Rules
 {
     /// <summary>
     /// Rule that ensures that the game title that was chosen falls between 3 and 32 characters.
