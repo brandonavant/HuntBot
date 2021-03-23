@@ -119,6 +119,8 @@ namespace HuntBot.Domain.HuntBotGames
                     StartDate = e.StartDate;
                     EndDate = e.EndDate;
                     break;
+                case Events.ParticipantAdded e:
+                    Participants.Add()
                 default:
                     throw new NotImplementedException($"The event '{@event}' has not been implemented.");
             }

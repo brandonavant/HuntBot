@@ -8,7 +8,7 @@ namespace HuntBot.Domain.SeedWork
     /// <summary>
     /// Base class for aggregate roots.
     /// </summary>
-    public abstract class AggregateRoot
+    public abstract class AggregateRoot : IInternalEventHandler
     {
         /// <summary>
         /// The list of events to be sent to the event store.
@@ -81,12 +81,25 @@ namespace HuntBot.Domain.SeedWork
             }
         }
 
+        /// <summary>
+        /// Provides aggregate validation by ensuring that the <see cref="IBusinessRule"/> is not broken.
+        /// </summary>
+        /// <param name="rule"><The <see cref="IBusinessRule"/> whose validity is checked./param>
         protected static void CheckRule(IBusinessRule rule)
         {
             if (rule.IsBroken())
             {
                 throw new BusinessRuleValidationException(rule);
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="event"></param>
+        void IInternalEventHandler.Handle(object @event)
+        {
+            When(@event);
         }
     }
 }
