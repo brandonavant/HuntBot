@@ -97,9 +97,6 @@ namespace HuntBot.Domain.SeedWork
         /// 
         /// </summary>
         /// <param name="event"></param>
-        void IInternalEventHandler.Handle(object @event)
-        {
-            When(@event);
-        }
+        void IInternalEventHandler.Handle(object @event) => When(@event);
     }
 }
