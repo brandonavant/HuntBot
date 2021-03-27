@@ -53,18 +53,13 @@ namespace HuntBot.Domain.SeedWork
         /// Retrieves the collection of changes in IEnumerable form.
         /// </summary>
         /// <returns>An IEnumerable of pending changes.</returns>
-        public IEnumerable<object> GetChanges()
-        {
-            return _changes.AsEnumerable();
-        }
+        public IEnumerable<object> GetChanges() => _changes.AsEnumerable();
 
         /// <summary>
         /// Purges the <see cref="_changes"/> List.
         /// </summary>
-        public void ClearChanges()
-        {
-            _changes.Clear();
-        }
+        public void ClearChanges() => _changes.Clear();
+
 
         /// <summary>
         /// Loads all events for the aggregate and re-applys them in order to the Aggregate instance.
@@ -92,6 +87,14 @@ namespace HuntBot.Domain.SeedWork
                 throw new BusinessRuleValidationException(rule);
             }
         }
+
+        /// <summary>
+        /// Allows an <see cref="Entity{TId}"/> instance to apply its own business logic to itself while keeping
+        /// the <see cref="AggregateRoot"/> instance in control of the process.
+        /// </summary>
+        /// <param name="entity">The <see cref="Entity{TId}"/> instance for which an event is being applied.</param>
+        /// <param name="event">The Event to apply to the <see cref="Entity{TId}"/> instance.</param>
+        protected void ApplyToEntity(IInternalEventHandler entity, object @event) => entity?.Handle(@event);
 
         /// <summary>
         /// 

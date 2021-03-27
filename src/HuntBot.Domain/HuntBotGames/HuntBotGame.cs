@@ -88,10 +88,8 @@ namespace HuntBot.Domain.HuntBotGames
         /// <param name="citizenName">The citizen name of the participant.</param>
         /// <param name="participantUniquenessChecker">Used to determine if the given citizen number has already been registered as a participant in this game.</param>
         /// <returns>A newly-created instance of <see cref="HuntBotGameParticipant"/>.</returns>
-        public HuntBotGameParticipant AddParticipant(int citizenNumber, string citizenName, IParticipantUniquenessChecker participantUniquenessChecker)
+        public void AddParticipant(int citizenNumber, string citizenName, int foundObjectId, int points, IParticipantUniquenessChecker participantUniquenessChecker)
         {
-            HuntBotGameParticipant newParticipant;
-
             if (participantUniquenessChecker is null)
             {
                 throw new ArgumentNullException(nameof(participantUniquenessChecker));
@@ -99,10 +97,13 @@ namespace HuntBot.Domain.HuntBotGames
 
             CheckRule(new ParticipantIsNotRegisteredInGameRule(citizenNumber, Id, participantUniquenessChecker));
 
-            newParticipant = new HuntBotGameParticipant(citizenNumber, citizenName);
-            Participants.Add(newParticipant);
-
-            return newParticipant;
+            ApplyChange(new Events.HuntBotParticipantAdded
+            {
+                CitizenNumber = citizenNumber,
+                CitizenName = citizenName,
+                FoundObjectId = foundObjectId,
+                Points = points
+            });            
         }
 
         /// <summary>
@@ -120,6 +121,10 @@ namespace HuntBot.Domain.HuntBotGames
                     EndDate = e.EndDate;
                     break;
                 case Events.HuntBotParticipantAdded e:
+                    var newParticipant = new HuntBotGameParticipant(ApplyChange);
+
+                    ApplyToEntity(newParticipant, e);
+                    Participants.Add(newParticipant);
                     break;
                 default:
                     throw new NotImplementedException($"The event '{@event}' has not been implemented.");
