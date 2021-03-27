@@ -36,7 +36,10 @@ namespace HuntBot.App
         {
             // TODO: Read configuration and determine how many instances should be created (i.e. in how many worlds will the event be hosted -- up  to 5 worlds for now).
             // TODO: Create an instance per world in the event.
+            // TODO: Determine if we are continuing a previous event (indicated by config file, for now).
             // TODO: Begin scanning each world. Once scanning is complete, store the results (i.e. egg count) in database.
+
+            // TODO: When a user enters the world, check the CitizenName stored in the database for their CitizenNumber. If it is different, change it in the DB.
 
             return Task.CompletedTask;
         }
