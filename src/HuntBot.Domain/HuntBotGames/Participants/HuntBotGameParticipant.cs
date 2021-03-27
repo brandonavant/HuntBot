@@ -29,7 +29,10 @@ namespace HuntBot.Domain.HuntBotGames.Participants
         /// Initializes a new instance of <see cref="HuntBotGameParticipant"/>.
         /// </summary>
         /// <param name="eventApplier">Delegate used to perform a double-dispatch invocation to inform the <see cref="HuntBotGame"/> instance of changes.</param>
-        public HuntBotGameParticipant(Action<object> eventApplier) : base(eventApplier) { }
+        public HuntBotGameParticipant(Action<object> eventApplier) : base(eventApplier) 
+        {
+            ObjectFinds = new List<GameObjectFind>();
+        }
 
         /// <summary>
         /// Matches an event to the event type and applies the corresponding changes to the <see cref="HuntBotGameParticipant"/> instance.
@@ -47,7 +50,8 @@ namespace HuntBot.Domain.HuntBotGames.Participants
                         ObjectId = e.FoundObjectId, 
                         FoundDate = DateTime.UtcNow, 
                         Points = e.Points 
-                    });  
+                    });
+                    GamePoints += e.Points;
                     break;
                 default:
                     break;
