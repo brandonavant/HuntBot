@@ -37,28 +37,33 @@ namespace HuntBot.Domain.HuntBotGames
         /// <summary>
         /// Aggregate event that is raised when a game participant is added.
         /// </summary>
-        public class ParticipantAdded
+        public class HuntBotParticipantAdded
         {
             /// <summary>
             /// The new participant's CitizenNumber.
             /// </summary>
-            public int Id { get; init; }
+            public int CitizenNumber { get; init; }
 
             /// <summary>
             /// The new participant's CitizenName.
             /// </summary>
-            public string Name { get; init; }
+            public string CitizenName { get; init; }
 
             /// <summary>
-            /// The object that the player found, which initiated the newly created <see cref="HuntBotGameParticipant"/> instance.
+            /// The Id of the object that was found.
             /// </summary>
-            public GameObject FoundObject { get; init; }
+            public int FoundObjectId { get; init; }
+
+            /// <summary>
+            /// The number of game points that the find is worth.
+            /// </summary>
+            public int Points { get; init; }
         }
 
         /// <summary>
         /// Aggregate event that is raised when a game participant finds a game object.
         /// </summary>
-        public class ParticipantFoundGameObject
+        public class HuntBotParticipantFoundGameObject
         {
             /// <summary>
             /// The Id of the game object that was found.

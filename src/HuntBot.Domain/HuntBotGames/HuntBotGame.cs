@@ -106,7 +106,7 @@ namespace HuntBot.Domain.HuntBotGames
         }
 
         /// <summary>
-        /// Matches a event to the event type and applies the corresponding changes to the aggregate.
+        /// Matches an event to the event type and applies the corresponding changes to the <see cref="HuntBotGame"/> instance.
         /// </summary>
         /// <param name="event">The event to apply to the aggregate instance.</param>
         protected override void When(object @event)
@@ -119,8 +119,8 @@ namespace HuntBot.Domain.HuntBotGames
                     StartDate = e.StartDate;
                     EndDate = e.EndDate;
                     break;
-                case Events.ParticipantAdded e:
-                    Participants.Add()
+                case Events.HuntBotParticipantAdded e:
+                    break;
                 default:
                     throw new NotImplementedException($"The event '{@event}' has not been implemented.");
             }

@@ -40,9 +40,9 @@ namespace HuntBot.Domain.SeedWork
         protected abstract void When(object @event);
 
         /// <summary>
-        /// Applies incoming changes to the aggregate instance and stages those changes to be written to the event store.
+        /// Applies incoming changes to the <see cref="AggregateRoot"/> instance and stages those changes to be written to the event store.
         /// </summary>
-        /// <param name="event">The event to apply to the aggregate.</param>
+        /// <param name="event">The event to apply to the <see cref="AggregateRoot"/> instance.</param>
         protected void ApplyChange(object @event)
         {
             When(@event);

@@ -27,9 +27,22 @@ namespace HuntBot.Domain.SeedWork
             _eventApplier = eventApplier;
         }
 
-        public void Handle(object @event)
+        protected abstract void When(object @event);
+
+        /// <summary>
+        /// Applies incoming changes to the <see cref="Entity{TId}"/> instance and stages those changes to be written to the event store.
+        /// </summary>
+        /// <param name="event">The event to apply to the <see cref="Entity{TId}"/> instance.</param>
+        protected void ApplyChange(object @event)
         {
-            throw new System.NotImplementedException();
+            When(@event);
+            _eventApplier(@event);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="event"></param>
+        void IInternalEventHandler.Handle(object @event) => When(@event);
     }
 }
