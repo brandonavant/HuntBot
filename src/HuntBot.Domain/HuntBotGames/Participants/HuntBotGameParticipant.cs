@@ -1,4 +1,3 @@
-using HuntBot.Domain.HuntBotGames.GameObjects;
 using HuntBot.Domain.SeedWork;
 using System;
 using System.Collections.Generic;

@@ -1,7 +1,7 @@
 ﻿using HuntBot.Domain.SeedWork;
 using System;
 
-namespace HuntBot.Domain.HuntBotGames.GameObjects
+namespace HuntBot.Domain.HuntBotGames
 {
     public record GameObjectFind
     {

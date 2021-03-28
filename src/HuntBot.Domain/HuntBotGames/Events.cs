@@ -1,5 +1,4 @@
-﻿using HuntBot.Domain.HuntBotGames.GameObjects;
-using System;
+﻿using System;
 
 namespace HuntBot.Domain.HuntBotGames
 {
