@@ -53,9 +53,32 @@ namespace HuntBot.Domain.HuntBotGames.Participants
                     });
                     GamePoints += e.Points;
                     break;
+                case Events.HuntBotParticipantFoundGameObject e:
+                    ObjectFinds.Add(new GameObjectFind
+                    {
+                        ObjectId = e.FoundObjectId,
+                        FoundDate = DateTime.UtcNow,
+                        Points = e.Points
+                    });
+                    GamePoints += e.Points;
+                    break;
                 default:
                     break;
             }
+        }
+
+        /// <summary>
+        /// Marks that this game participant found an object.
+        /// </summary>
+        /// <param name="objectId">The ObjectId of the object that was found.</param>
+        /// <param name="points">The number of points awarded for finding this object.</param>
+        public void ParticipantFoundObject(int objectId, int points)
+        {
+            ApplyChange(new Events.HuntBotParticipantFoundGameObject
+            {
+                FoundObjectId = objectId,
+                Points = points
+            });
         }
     }
 }

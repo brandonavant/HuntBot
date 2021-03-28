@@ -3,6 +3,7 @@ using HuntBot.Domain.HuntBotGames.Rules;
 using HuntBot.Domain.SeedWork;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HuntBot.Domain.HuntBotGames
 {
@@ -104,7 +105,7 @@ namespace HuntBot.Domain.HuntBotGames
                 FoundObjectId = foundObjectId,
                 Points = points
             });            
-        }
+        }        
 
         /// <summary>
         /// Matches an event to the event type and applies the corresponding changes to the <see cref="HuntBotGame"/> instance.
@@ -129,6 +130,21 @@ namespace HuntBot.Domain.HuntBotGames
                 default:
                     throw new NotImplementedException($"The event '{@event}' has not been implemented.");
             }
+        }
+
+        /// <summary>
+        /// Marks that a participant has found a particular game object.
+        /// </summary>
+        /// <param name="citizenNumber">The CtizienNumber of the participant.</param>
+        /// <param name="objectId">The ObjectId of the object found.</param>
+        /// <param name="points">The number of points to be awarded by the find.</param>
+        public void ParticipantFoundObject(int citizenNumber, int objectId, int points)
+        {
+            var participant = Participants.FirstOrDefault(p => p.Id == citizenNumber);
+
+            CheckRule(new ParticipantIsRegisteredInGameRule(participant));
+
+            participant.ParticipantFoundObject(objectId, points);
         }
     }
 }

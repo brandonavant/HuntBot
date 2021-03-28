@@ -66,11 +66,6 @@ namespace HuntBot.Domain.HuntBotGames
         public class HuntBotParticipantFoundGameObject
         {
             /// <summary>
-            /// The Id of the participant.
-            /// </summary>
-            public int ParticipantId { get; set; }
-
-            /// <summary>
             /// The Id of the game object that was found.
             /// </summary>
             public int FoundObjectId { get; init; }
