@@ -61,8 +61,6 @@ namespace HuntBot.Domain.HuntBotGames.Participants
                     });
                     GamePoints += e.Points;
                     break;
-                default:
-                    break;
             }
         }
 

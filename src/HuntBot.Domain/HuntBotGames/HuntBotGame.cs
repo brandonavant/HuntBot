@@ -127,8 +127,6 @@ namespace HuntBot.Domain.HuntBotGames
                     ApplyToEntity(newParticipant, e);
                     Participants.Add(newParticipant);
                     break;
-                default:
-                    throw new NotImplementedException($"The event '{@event}' has not been implemented.");
             }
         }
 

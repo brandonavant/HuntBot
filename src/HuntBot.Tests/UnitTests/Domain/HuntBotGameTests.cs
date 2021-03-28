@@ -154,5 +154,36 @@ namespace HuntBot.Tests.UnitTests.Domain
                 participantUniquenessCheckerMock.Object
             ));
         }
+
+        [Fact]
+        public void HuntBotGame_ParticipantFoundSingleObject_AddsFindAndPointsProperly()
+        {
+            HuntBotGame huntBotGame;
+            HuntBotGameParticipant huntBotGameParticipant;
+            GameObjectFind gameObjectFind;
+
+            var pointsAwarded = 5000;
+            var huntBotGameId = Guid.NewGuid();
+            var gameUniquenessCheckerMock = new Mock<IGameUniquenessChecker>();
+            var participantUniquenessCheckerMock = new Mock<IParticipantUniquenessChecker>();
+            var pointsAwardedForRegistrationObjectFind = 5;
+
+            gameUniquenessCheckerMock.Setup(uc => uc.IsUnique(_defaultGameTitle)).Returns(true);
+            participantUniquenessCheckerMock.Setup(uc => uc.IsUnique(huntBotGameId, _defaultParticipantCitizenNumber)).Returns(true);
+
+            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, gameUniquenessCheckerMock.Object);
+            huntBotGame.AddParticipant(_defaultParticipantCitizenNumber, _defaultParticipantCitizenName, _defaultFoundGameObjectId, pointsAwardedForRegistrationObjectFind, participantUniquenessCheckerMock.Object);
+            huntBotGameParticipant = huntBotGame.Participants[0];
+
+            huntBotGameParticipant.ParticipantFoundObject(_defaultFoundGameObjectId, pointsAwarded);
+            gameObjectFind = huntBotGameParticipant.ObjectFinds[1]; // 0 is the object found upon participant creation.
+
+            Assert.Equal(2, huntBotGameParticipant.ObjectFinds.Count);
+            Assert.NotNull(gameObjectFind);
+            Assert.Equal(_defaultFoundGameObjectId, gameObjectFind.ObjectId);
+            Assert.Equal(pointsAwarded, gameObjectFind.Points);
+            Assert.Equal(DateTime.UtcNow.ToString("s"), gameObjectFind.FoundDate.ToString("s"));
+            Assert.Equal(huntBotGameParticipant.GamePoints, pointsAwarded + pointsAwardedForRegistrationObjectFind);
+        }
     }
 }
