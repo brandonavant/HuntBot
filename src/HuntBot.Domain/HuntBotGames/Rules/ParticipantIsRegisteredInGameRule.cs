@@ -9,7 +9,7 @@ namespace HuntBot.Domain.HuntBotGames.Rules
         /// <summary>
         /// The participant for which registration is being checked.
         /// </summary>
-        private HuntBotGameParticipant _participant;
+        private GameParticipant _participant;
 
         /// <summary>
         /// The error message displayed when the rule is broken.
@@ -20,7 +20,7 @@ namespace HuntBot.Domain.HuntBotGames.Rules
         /// Initializes a new instance of <see cref="ParticipantIsRegisteredInGameRule"/>.
         /// </summary>
         /// <param name="participant">The participant for which registration is being checked.</param>
-        public ParticipantIsRegisteredInGameRule(HuntBotGameParticipant participant)
+        public ParticipantIsRegisteredInGameRule(GameParticipant participant)
         {
             _participant = participant;
         }

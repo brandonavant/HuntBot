@@ -1,3 +1,4 @@
+using HuntBot.Domain.HuntBotGames.GameObjects;
 using HuntBot.Domain.SeedWork;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ namespace HuntBot.Domain.HuntBotGames.Participants
     /// <summary>
     /// Encapsulates game participant information.
     /// </summary>
-    public class HuntBotGameParticipant : Entity<int>
+    public class GameParticipant : Entity<int>
     {
         /// <summary>
         /// The participant's CitizenName.
@@ -25,23 +26,23 @@ namespace HuntBot.Domain.HuntBotGames.Participants
         public List<GameObjectFind> ObjectFinds { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="HuntBotGameParticipant"/>.
+        /// Initializes a new instance of <see cref="GameParticipant"/>.
         /// </summary>
         /// <param name="eventApplier">Delegate used to perform a double-dispatch invocation to inform the <see cref="HuntBotGame"/> instance of changes.</param>
-        public HuntBotGameParticipant(Action<object> eventApplier) : base(eventApplier) 
+        public GameParticipant(Action<object> eventApplier) : base(eventApplier) 
         {
             ObjectFinds = new List<GameObjectFind>();
         }
 
         /// <summary>
-        /// Matches an event to the event type and applies the corresponding changes to the <see cref="HuntBotGameParticipant"/> instance.
+        /// Matches an event to the event type and applies the corresponding changes to the <see cref="GameParticipant"/> instance.
         /// </summary>
         /// <param name="event">The event to apply to the aggregate instance.</param>
         protected override void When(object @event)
         {
             switch (@event)
             {
-                case Events.HuntBotParticipantAdded e:
+                case Events.ParticipantAdded e:
                     Id = e.CitizenNumber;
                     CitizenName = e.CitizenName;
                     ObjectFinds.Add(new GameObjectFind 
@@ -52,7 +53,7 @@ namespace HuntBot.Domain.HuntBotGames.Participants
                     });
                     GamePoints += e.Points;
                     break;
-                case Events.HuntBotParticipantFoundGameObject e:
+                case Events.ParticipantFoundGameObject e:
                     ObjectFinds.Add(new GameObjectFind
                     {
                         ObjectId = e.FoundObjectId,
@@ -71,7 +72,7 @@ namespace HuntBot.Domain.HuntBotGames.Participants
         /// <param name="points">The number of points awarded for finding this object.</param>
         public void ParticipantFoundObject(int objectId, int points)
         {
-            ApplyChange(new Events.HuntBotParticipantFoundGameObject
+            ApplyChange(new Events.ParticipantFoundGameObject
             {
                 FoundObjectId = objectId,
                 Points = points

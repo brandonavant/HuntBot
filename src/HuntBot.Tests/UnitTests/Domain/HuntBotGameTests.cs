@@ -1,4 +1,5 @@
 ﻿using HuntBot.Domain.HuntBotGames;
+using HuntBot.Domain.HuntBotGames.GameObjects;
 using HuntBot.Domain.HuntBotGames.Participants;
 using HuntBot.Domain.SeedWork;
 using Moq;
@@ -111,7 +112,7 @@ namespace HuntBot.Tests.UnitTests.Domain
         [Fact]
         public void HuntBotGame_AddParticipantWithValidParams_CreatesInstanceWithCorrectValues()
         {
-            HuntBotGameParticipant huntBotGameParticipant;
+            GameParticipant gameParticipant;
             HuntBotGame huntBotGame;
 
             var huntBotGameId = Guid.NewGuid();
@@ -123,13 +124,13 @@ namespace HuntBot.Tests.UnitTests.Domain
 
             huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, gameUniquenessCheckerMock.Object);
             huntBotGame.AddParticipant(_defaultParticipantCitizenNumber, _defaultParticipantCitizenName, _defaultFoundGameObjectId, 5, participantUniquenessCheckerMock.Object);
-            huntBotGameParticipant = huntBotGame.Participants[0];
+            gameParticipant = huntBotGame.Participants[0];
 
             Assert.Single(huntBotGame.Participants);
 
-            Assert.Equal(_defaultParticipantCitizenNumber, huntBotGameParticipant.Id);
-            Assert.Equal(_defaultParticipantCitizenName, huntBotGameParticipant.CitizenName);
-            Assert.Equal(5, huntBotGameParticipant.GamePoints);
+            Assert.Equal(_defaultParticipantCitizenNumber, gameParticipant.Id);
+            Assert.Equal(_defaultParticipantCitizenName, gameParticipant.CitizenName);
+            Assert.Equal(5, gameParticipant.GamePoints);
         }
 
         [Fact]
@@ -159,7 +160,7 @@ namespace HuntBot.Tests.UnitTests.Domain
         public void HuntBotGame_ParticipantFoundSingleObject_AddsFindAndPointsProperly()
         {
             HuntBotGame huntBotGame;
-            HuntBotGameParticipant huntBotGameParticipant;
+            GameParticipant gameParticipant;
             GameObjectFind gameObjectFind;
 
             var pointsAwarded = 5000;
@@ -173,17 +174,17 @@ namespace HuntBot.Tests.UnitTests.Domain
 
             huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, gameUniquenessCheckerMock.Object);
             huntBotGame.AddParticipant(_defaultParticipantCitizenNumber, _defaultParticipantCitizenName, _defaultFoundGameObjectId, pointsAwardedForRegistrationObjectFind, participantUniquenessCheckerMock.Object);
-            huntBotGameParticipant = huntBotGame.Participants[0];
+            gameParticipant = huntBotGame.Participants[0];
 
-            huntBotGameParticipant.ParticipantFoundObject(_defaultFoundGameObjectId, pointsAwarded);
-            gameObjectFind = huntBotGameParticipant.ObjectFinds[1]; // 0 is the object found upon participant creation.
+            gameParticipant.ParticipantFoundObject(_defaultFoundGameObjectId, pointsAwarded);
+            gameObjectFind = gameParticipant.ObjectFinds[1]; // 0 is the object found upon participant creation.
 
-            Assert.Equal(2, huntBotGameParticipant.ObjectFinds.Count);
+            Assert.Equal(2, gameParticipant.ObjectFinds.Count);
             Assert.NotNull(gameObjectFind);
             Assert.Equal(_defaultFoundGameObjectId, gameObjectFind.ObjectId);
             Assert.Equal(pointsAwarded, gameObjectFind.Points);
             Assert.Equal(DateTime.UtcNow.ToString("s"), gameObjectFind.FoundDate.ToString("s"));
-            Assert.Equal(huntBotGameParticipant.GamePoints, pointsAwarded + pointsAwardedForRegistrationObjectFind);
+            Assert.Equal(gameParticipant.GamePoints, pointsAwarded + pointsAwardedForRegistrationObjectFind);
         }
     }
 }

@@ -1,3 +1,4 @@
+using HuntBot.Domain.HuntBotGames.GameObjects;
 using HuntBot.Domain.HuntBotGames.Participants;
 using HuntBot.Domain.HuntBotGames.Rules;
 using HuntBot.Domain.SeedWork;
@@ -30,7 +31,9 @@ namespace HuntBot.Domain.HuntBotGames
         /// <summary>
         /// List of game participants.
         /// </summary>
-        public List<HuntBotGameParticipant> Participants { get; private set; }
+        public List<GameParticipant> Participants { get; private set; }
+
+
 
         /// <summary>
         /// Initializes a new instance of <see cref="HuntBotGame"/>.
@@ -41,7 +44,7 @@ namespace HuntBot.Domain.HuntBotGames
         /// <param name="endDate">The date and time in which the game ends.</param>
         private HuntBotGame(Guid id, string title, DateTime startDate, DateTime endDate)
         {
-            Participants = new List<HuntBotGameParticipant>();
+            Participants = new List<GameParticipant>();
 
             ApplyChange(new Events.HuntBotGameCreated
             {
@@ -88,7 +91,7 @@ namespace HuntBot.Domain.HuntBotGames
         /// <param name="citizenNumber">The citizen number of the participant.</param>
         /// <param name="citizenName">The citizen name of the participant.</param>
         /// <param name="participantUniquenessChecker">Used to determine if the given citizen number has already been registered as a participant in this game.</param>
-        /// <returns>A newly-created instance of <see cref="HuntBotGameParticipant"/>.</returns>
+        /// <returns>A newly-created instance of <see cref="GameParticipant"/>.</returns>
         public void AddParticipant(int citizenNumber, string citizenName, int foundObjectId, int points, IParticipantUniquenessChecker participantUniquenessChecker)
         {
             if (participantUniquenessChecker is null)
@@ -98,36 +101,29 @@ namespace HuntBot.Domain.HuntBotGames
 
             CheckRule(new ParticipantIsNotRegisteredInGameRule(citizenNumber, Id, participantUniquenessChecker));
 
-            ApplyChange(new Events.HuntBotParticipantAdded
+            ApplyChange(new Events.ParticipantAdded
             {
                 CitizenNumber = citizenNumber,
                 CitizenName = citizenName,
                 FoundObjectId = foundObjectId,
                 Points = points
             });            
-        }        
+        }
 
         /// <summary>
-        /// Matches an event to the event type and applies the corresponding changes to the <see cref="HuntBotGame"/> instance.
+        /// Adds a game object to the <see cref="HuntBotGame"/> instance.
         /// </summary>
-        /// <param name="event">The event to apply to the aggregate instance.</param>
-        protected override void When(object @event)
+        /// <param name="objectId">The ObjectId of the object to add.</param>
+        /// <param name="worldName"></param>
+        /// <param name="points"></param>
+        public void AddGameObject(int objectId, string worldName, int points, IObjectUniquenessChecker objectUniquenessChecker)
         {
-            switch (@event)
+            if (objectUniquenessChecker is null)
             {
-                case Events.HuntBotGameCreated e:
-                    Id = e.Id;
-                    Title = e.Title;
-                    StartDate = e.StartDate;
-                    EndDate = e.EndDate;
-                    break;
-                case Events.HuntBotParticipantAdded e:
-                    var newParticipant = new HuntBotGameParticipant(ApplyChange);
-
-                    ApplyToEntity(newParticipant, e);
-                    Participants.Add(newParticipant);
-                    break;
+                throw new ArgumentNullException(nameof(objectUniquenessChecker));
             }
+
+            CheckRule
         }
 
         /// <summary>
@@ -143,6 +139,29 @@ namespace HuntBot.Domain.HuntBotGames
             CheckRule(new ParticipantIsRegisteredInGameRule(participant));
 
             participant.ParticipantFoundObject(objectId, points);
+        }
+
+        /// <summary>
+        /// Matches an event to the event type and applies the corresponding changes to the <see cref="HuntBotGame"/> instance.
+        /// </summary>
+        /// <param name="event">The event to apply to the aggregate instance.</param>
+        protected override void When(object @event)
+        {
+            switch (@event)
+            {
+                case Events.HuntBotGameCreated e:
+                    Id = e.Id;
+                    Title = e.Title;
+                    StartDate = e.StartDate;
+                    EndDate = e.EndDate;
+                    break;
+                case Events.ParticipantAdded e:
+                    var newParticipant = new GameParticipant(ApplyChange);
+
+                    ApplyToEntity(newParticipant, e);
+                    Participants.Add(newParticipant);
+                    break;
+            }
         }
     }
 }
