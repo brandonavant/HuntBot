@@ -2,7 +2,6 @@
 using HuntBot.Domain.HuntBotGames.GameObjects;
 using HuntBot.Domain.HuntBotGames.Participants;
 using HuntBot.Domain.SeedWork;
-using Moq;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -10,27 +9,14 @@ using Xunit;
 namespace HuntBot.Tests.UnitTests.Domain
 {
     public class HuntBotGameTests
-    { 
+    {
         private readonly DateTime _defaultGameStartDate;
         private readonly DateTime _defaultGameEndDate;
-        private readonly string _defaultGameTitle;
-        private readonly int _defaultParticipantCitizenNumber;
-        private readonly string _defaultParticipantCitizenName;
-        private readonly int _defaultFoundGameObjectId;
-        private readonly int _defaultGameObjectId;
-        private readonly string _defaultWorldName;
-        private readonly int _defaultGamePoints = 10;
 
         public HuntBotGameTests()
         {
             _defaultGameStartDate = DateTime.UtcNow.AddHours(1);
             _defaultGameEndDate = _defaultGameStartDate.AddDays(1);
-            _defaultGameTitle = "DefaultGameTitle";
-            _defaultParticipantCitizenNumber = 339566;
-            _defaultParticipantCitizenName = "Droog";
-            _defaultFoundGameObjectId = 1000;
-            _defaultGameObjectId = 5000;
-            _defaultWorldName = "AW";
         }
 
         [Fact]
@@ -39,11 +25,11 @@ namespace HuntBot.Tests.UnitTests.Domain
             HuntBotGame huntBotGame;
 
             var id = Guid.NewGuid();
-            huntBotGame = HuntBotGame.CreateNewHuntBotGame(id, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
+            huntBotGame = HuntBotGame.CreateNewHuntBotGame(id, HuntBotGameTestData.GameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
 
             Assert.NotNull(huntBotGame);
             Assert.Equal(id, huntBotGame.Id);
-            Assert.Equal(_defaultGameTitle, huntBotGame.Title);
+            Assert.Equal(HuntBotGameTestData.GameTitle, huntBotGame.Title);
             Assert.Equal(_defaultGameStartDate, huntBotGame.StartDate);
             Assert.Equal(_defaultGameEndDate, huntBotGame.EndDate);
         }
@@ -55,10 +41,10 @@ namespace HuntBot.Tests.UnitTests.Domain
 
             Assert.Throws<BusinessRuleValidationException>(() => HuntBotGame.CreateNewHuntBotGame(
                 id,
-                _defaultGameTitle,
+                HuntBotGameTestData.GameTitle,
                 _defaultGameStartDate,
                 _defaultGameEndDate,
-                new List<string> { _defaultGameTitle }
+                new List<string> { HuntBotGameTestData.GameTitle }
             ));
         }
 
@@ -85,7 +71,7 @@ namespace HuntBot.Tests.UnitTests.Domain
 
             Assert.Throws<BusinessRuleValidationException>(() => HuntBotGame.CreateNewHuntBotGame(
                 id,
-                _defaultGameTitle,
+                HuntBotGameTestData.GameTitle,
                 yesterday,
                 _defaultGameEndDate,
                 new List<string>()
@@ -99,7 +85,7 @@ namespace HuntBot.Tests.UnitTests.Domain
 
             Assert.Throws<BusinessRuleValidationException>(() => HuntBotGame.CreateNewHuntBotGame(
                 id,
-                _defaultGameTitle,
+                HuntBotGameTestData.GameTitle,
                 _defaultGameStartDate,
                 _defaultGameStartDate,
                 new List<string>()
@@ -114,14 +100,14 @@ namespace HuntBot.Tests.UnitTests.Domain
 
             var huntBotGameId = Guid.NewGuid();
 
-            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
-            huntBotGame.AddParticipant(_defaultParticipantCitizenNumber, _defaultParticipantCitizenName, _defaultFoundGameObjectId, 5);
+            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, HuntBotGameTestData.GameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
+            huntBotGame.AddParticipant(HuntBotGameTestData.ParticipantCitizenNumber, HuntBotGameTestData.ParticipantCitizenName, HuntBotGameTestData.FoundGameObjectId, 5);
             gameParticipant = huntBotGame.GameParticipants[0];
 
             Assert.Single(huntBotGame.GameParticipants);
 
-            Assert.Equal(_defaultParticipantCitizenNumber, gameParticipant.Id);
-            Assert.Equal(_defaultParticipantCitizenName, gameParticipant.CitizenName);
+            Assert.Equal(HuntBotGameTestData.ParticipantCitizenNumber, gameParticipant.Id);
+            Assert.Equal(HuntBotGameTestData.ParticipantCitizenName, gameParticipant.CitizenName);
             Assert.Equal(5, gameParticipant.GamePoints);
         }
 
@@ -131,14 +117,14 @@ namespace HuntBot.Tests.UnitTests.Domain
             HuntBotGame huntBotGame;
 
             var huntBotGameId = Guid.NewGuid();            
-            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
-            huntBotGame.AddParticipant(_defaultParticipantCitizenNumber, _defaultParticipantCitizenName, _defaultFoundGameObjectId, 5);
+            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, HuntBotGameTestData.GameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
+            huntBotGame.AddParticipant(HuntBotGameTestData.ParticipantCitizenNumber, HuntBotGameTestData.ParticipantCitizenName, HuntBotGameTestData.FoundGameObjectId, 5);
             
             Assert.Throws<BusinessRuleValidationException>(() => huntBotGame.AddParticipant
             (
-                _defaultParticipantCitizenNumber,
-                _defaultParticipantCitizenName,
-                _defaultFoundGameObjectId,
+                HuntBotGameTestData.ParticipantCitizenNumber,
+                HuntBotGameTestData.ParticipantCitizenName,
+                HuntBotGameTestData.FoundGameObjectId,
                 5
             ));
         }
@@ -154,16 +140,16 @@ namespace HuntBot.Tests.UnitTests.Domain
             var huntBotGameId = Guid.NewGuid();
             var pointsAwardedForRegistrationObjectFind = 5;
 
-            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
-            huntBotGame.AddParticipant(_defaultParticipantCitizenNumber, _defaultParticipantCitizenName, _defaultFoundGameObjectId, pointsAwardedForRegistrationObjectFind);
+            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, HuntBotGameTestData.GameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
+            huntBotGame.AddParticipant(HuntBotGameTestData.ParticipantCitizenNumber, HuntBotGameTestData.ParticipantCitizenName, HuntBotGameTestData.FoundGameObjectId, pointsAwardedForRegistrationObjectFind);
             gameParticipant = huntBotGame.GameParticipants[0];
 
-            gameParticipant.ParticipantFoundObject(_defaultFoundGameObjectId, pointsAwarded);
+            gameParticipant.ParticipantFoundObject(HuntBotGameTestData.FoundGameObjectId, pointsAwarded);
             gameObjectFind = gameParticipant.ObjectFinds[1]; // 0 is the object found upon participant creation.
 
             Assert.Equal(2, gameParticipant.ObjectFinds.Count);
             Assert.NotNull(gameObjectFind);
-            Assert.Equal(_defaultFoundGameObjectId, gameObjectFind.ObjectId);
+            Assert.Equal(HuntBotGameTestData.FoundGameObjectId, gameObjectFind.ObjectId);
             Assert.Equal(pointsAwarded, gameObjectFind.Points);
             Assert.Equal(DateTime.UtcNow.ToString("s"), gameObjectFind.FoundDate.ToString("s"));
             Assert.Equal(gameParticipant.GamePoints, pointsAwarded + pointsAwardedForRegistrationObjectFind);
@@ -176,14 +162,14 @@ namespace HuntBot.Tests.UnitTests.Domain
             GameObject gameObject;
 
             var huntBotGameId = Guid.NewGuid();
-            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
-            huntBotGame.AddGameObject(_defaultGameObjectId, _defaultWorldName, _defaultGamePoints);
+            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, HuntBotGameTestData.GameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
+            huntBotGame.AddGameObject(HuntBotGameTestData.GameObjectId, HuntBotGameTestData.WorldName, HuntBotGameTestData.GamePoints);
             gameObject = huntBotGame.GameObjects[0];
 
             Assert.NotNull(gameObject);
-            Assert.Equal(_defaultGameObjectId, gameObject.Id);
-            Assert.Equal(_defaultWorldName, gameObject.WorldName);
-            Assert.Equal(10, _defaultGamePoints);
+            Assert.Equal(HuntBotGameTestData.GameObjectId, gameObject.Id);
+            Assert.Equal(HuntBotGameTestData.WorldName, gameObject.WorldName);
+            Assert.Equal(10, HuntBotGameTestData.GamePoints);
         }
 
         [Fact]
@@ -192,14 +178,14 @@ namespace HuntBot.Tests.UnitTests.Domain
             HuntBotGame huntBotGame;
 
             var huntBotGameId = Guid.NewGuid();
-            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
-            huntBotGame.AddGameObject(_defaultGameObjectId, _defaultWorldName, _defaultGamePoints);
+            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, HuntBotGameTestData.GameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
+            huntBotGame.AddGameObject(HuntBotGameTestData.GameObjectId, HuntBotGameTestData.WorldName, HuntBotGameTestData.GamePoints);
 
             Assert.Throws<BusinessRuleValidationException>(() => huntBotGame.AddGameObject
             (
-                _defaultGameObjectId,
-                _defaultWorldName, 
-                _defaultGamePoints
+                HuntBotGameTestData.GameObjectId,
+                HuntBotGameTestData.WorldName, 
+                HuntBotGameTestData.GamePoints
             ));
         }
     }
