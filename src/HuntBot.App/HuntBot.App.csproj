@@ -10,4 +10,14 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HuntBot.Infrastructure\HuntBot.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
