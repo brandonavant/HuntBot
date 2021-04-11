@@ -31,7 +31,7 @@ namespace HuntBot.Domain.HuntBotGames
         /// <summary>
         /// List of game participants.
         /// </summary>
-        public List<GameParticipant> Participants { get; private set; }
+        public List<GameParticipant> GameParticipants { get; private set; }
 
         /// <summary>
         /// List of game objects.
@@ -47,7 +47,7 @@ namespace HuntBot.Domain.HuntBotGames
         /// <param name="endDate">The date and time in which the game ends.</param>
         private HuntBotGame(Guid id, string title, DateTime startDate, DateTime endDate)
         {
-            Participants = new List<GameParticipant>();
+            GameParticipants = new List<GameParticipant>();
             GameObjects = new List<GameObject>();
 
             ApplyChange(new Events.HuntBotGameCreated
@@ -85,15 +85,15 @@ namespace HuntBot.Domain.HuntBotGames
         }
 
         /// <summary>
-        /// Adds a participant to the <see cref="Participants"/>.
+        /// Adds a participant to the <see cref="GameParticipants"/>.
         /// </summary>
         /// <param name="citizenNumber">The citizen number of the participant.</param>
         /// <param name="citizenName">The citizen name of the participant.</param>
         /// <param name="participantUniquenessChecker">Used to determine if the given citizen number has already been registered as a participant in this game.</param>
         /// <returns>A newly-created instance of <see cref="GameParticipant"/>.</returns>
-        public void AddParticipant(int citizenNumber, string citizenName, int foundObjectId, int points, List<GameParticipant> gameParticipants)
+        public void AddParticipant(int citizenNumber, string citizenName, int foundObjectId, int points)
         {
-            CheckRule(new ParticipantIsNotRegisteredInGameRule(citizenNumber, Id, gameParticipants));
+            CheckRule(new ParticipantIsNotRegisteredInGameRule(citizenNumber, Id, GameParticipants));
 
             ApplyChange(new Events.ParticipantAdded
             {
@@ -110,9 +110,9 @@ namespace HuntBot.Domain.HuntBotGames
         /// <param name="objectId">The ObjectId of the object to add.</param>
         /// <param name="worldName"></param>
         /// <param name="points"></param>
-        public void AddGameObject(int objectId, string worldName, int points, List<GameObject> gameObjects)
+        public void AddGameObject(int objectId, string worldName, int points)
         {
-            CheckRule(new GameObjectIsUniqueRule(objectId, gameObjects));
+            CheckRule(new GameObjectIsUniqueRule(objectId, GameObjects));
 
             ApplyChange(new Events.GameObjectAdded
             {
@@ -130,7 +130,7 @@ namespace HuntBot.Domain.HuntBotGames
         /// <param name="points">The number of points to be awarded by the find.</param>
         public void ParticipantFoundObject(int citizenNumber, int objectId, int points)
         {
-            var participant = Participants.FirstOrDefault(p => p.Id == citizenNumber);
+            var participant = GameParticipants.FirstOrDefault(p => p.Id == citizenNumber);
 
             CheckRule(new ParticipantIsRegisteredInGameRule(participant));
 
@@ -155,7 +155,7 @@ namespace HuntBot.Domain.HuntBotGames
                     var newParticipant = new GameParticipant(ApplyChange);
 
                     ApplyToEntity(newParticipant, e);
-                    Participants.Add(newParticipant);
+                    GameParticipants.Add(newParticipant);
                     break;
                 case Events.GameObjectAdded e:
                     var newObject = new GameObject(ApplyChange);
