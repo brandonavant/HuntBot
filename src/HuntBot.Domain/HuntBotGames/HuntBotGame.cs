@@ -72,17 +72,12 @@ namespace HuntBot.Domain.HuntBotGames
             Guid id,
             string title, 
             DateTime startDate, 
-            DateTime endDate, 
-            IGameUniquenessChecker gameUniquenessChecker
+            DateTime endDate,
+            List<string> gameTitles
         )
         {
-            if (gameUniquenessChecker is null)
-            {
-                throw new ArgumentNullException(nameof(gameUniquenessChecker));
-            }
-
             CheckRule(new GameTitleLengthMustBeCorrectRule(title));
-            CheckRule(new GameTitleMustBeUniqueRule(title, gameUniquenessChecker));
+            CheckRule(new GameTitleMustBeUniqueRule(title, gameTitles));
             CheckRule(new GameStartDateMustNotBeInThePastRule(startDate));
             CheckRule(new GameEndDateMustBeAfterStartDateRule(startDate, endDate));
 
@@ -96,14 +91,9 @@ namespace HuntBot.Domain.HuntBotGames
         /// <param name="citizenName">The citizen name of the participant.</param>
         /// <param name="participantUniquenessChecker">Used to determine if the given citizen number has already been registered as a participant in this game.</param>
         /// <returns>A newly-created instance of <see cref="GameParticipant"/>.</returns>
-        public void AddParticipant(int citizenNumber, string citizenName, int foundObjectId, int points, IParticipantUniquenessChecker participantUniquenessChecker)
+        public void AddParticipant(int citizenNumber, string citizenName, int foundObjectId, int points, List<GameParticipant> gameParticipants)
         {
-            if (participantUniquenessChecker is null)
-            {
-                throw new ArgumentNullException(nameof(participantUniquenessChecker));
-            }
-
-            CheckRule(new ParticipantIsNotRegisteredInGameRule(citizenNumber, Id, participantUniquenessChecker));
+            CheckRule(new ParticipantIsNotRegisteredInGameRule(citizenNumber, Id, gameParticipants));
 
             ApplyChange(new Events.ParticipantAdded
             {
@@ -120,14 +110,9 @@ namespace HuntBot.Domain.HuntBotGames
         /// <param name="objectId">The ObjectId of the object to add.</param>
         /// <param name="worldName"></param>
         /// <param name="points"></param>
-        public void AddGameObject(int objectId, string worldName, int points, IObjectUniquenessChecker objectUniquenessChecker)
+        public void AddGameObject(int objectId, string worldName, int points, List<GameObject> gameObjects)
         {
-            if (objectUniquenessChecker is null)
-            {
-                throw new ArgumentNullException(nameof(objectUniquenessChecker));
-            }
-
-            CheckRule(new GameObjectIsUniqueRule(this.Id, objectId, objectUniquenessChecker));
+            CheckRule(new GameObjectIsUniqueRule(objectId, gameObjects));
 
             ApplyChange(new Events.GameObjectAdded
             {
@@ -177,7 +162,6 @@ namespace HuntBot.Domain.HuntBotGames
 
                     ApplyToEntity(newObject, e);
                     GameObjects.Add(newObject);
-
                     break;
             }
         }

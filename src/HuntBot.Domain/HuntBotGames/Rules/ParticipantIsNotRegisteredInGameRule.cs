@@ -1,6 +1,8 @@
 ﻿using HuntBot.Domain.HuntBotGames.Participants;
 using HuntBot.Domain.SeedWork;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HuntBot.Domain.HuntBotGames.Rules
 {
@@ -20,9 +22,9 @@ namespace HuntBot.Domain.HuntBotGames.Rules
         private readonly Guid _huntBotGameId;
 
         /// <summary>
-        /// Provides a means of checking whether or not a participant has been registered into the game already.
+        /// Collection of current <see cref="GameParticipant"/> instances against which a participant's existence is checked.
         /// </summary>
-        private readonly IParticipantUniquenessChecker _participantUniquenessChecker;
+        private readonly List<GameParticipant> _gameParticipants;
 
         /// <summary>
         /// The error message to be displayed to the user.
@@ -36,11 +38,11 @@ namespace HuntBot.Domain.HuntBotGames.Rules
         public ParticipantIsNotRegisteredInGameRule(
             int citizenNumber,
             Guid huntBotGameId,
-            IParticipantUniquenessChecker participantUniquenessChecker)
+            List<GameParticipant> gameParticipants)
         {
             _citizenNumber = citizenNumber;
             _huntBotGameId = huntBotGameId;
-            _participantUniquenessChecker = participantUniquenessChecker;
+            _gameParticipants = gameParticipants;
         }
 
         /// <summary>
@@ -49,7 +51,7 @@ namespace HuntBot.Domain.HuntBotGames.Rules
         /// <returns>True if the rule is broken.</returns>
         public bool IsBroken()
         {
-            return !_participantUniquenessChecker.IsUnique(_huntBotGameId, _citizenNumber);
+            return _gameParticipants.Any(gp => gp.Id == _citizenNumber);
         }
     }
 }

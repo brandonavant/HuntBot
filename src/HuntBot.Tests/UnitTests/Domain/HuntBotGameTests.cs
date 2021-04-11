@@ -4,6 +4,7 @@ using HuntBot.Domain.HuntBotGames.Participants;
 using HuntBot.Domain.SeedWork;
 using Moq;
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace HuntBot.Tests.UnitTests.Domain
@@ -37,10 +38,7 @@ namespace HuntBot.Tests.UnitTests.Domain
             HuntBotGame huntBotGame;
 
             var id = Guid.NewGuid();
-            var gameUniquenessCheckerMock = new Mock<IGameUniquenessChecker>();
-
-            gameUniquenessCheckerMock.Setup(uc => uc.IsUnique(_defaultGameTitle)).Returns(true);
-            huntBotGame = HuntBotGame.CreateNewHuntBotGame(id, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, gameUniquenessCheckerMock.Object);
+            huntBotGame = HuntBotGame.CreateNewHuntBotGame(id, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
 
             Assert.NotNull(huntBotGame);
             Assert.Equal(id, huntBotGame.Id);
@@ -53,16 +51,13 @@ namespace HuntBot.Tests.UnitTests.Domain
         public void HuntBotGame_CreateNewHuntBotGameWithNonUniqueTitle_ThrowsBusinessRuleValidationException()
         {
             var id = Guid.NewGuid();
-            var gameUniquenessCheckerMock = new Mock<IGameUniquenessChecker>();
-
-            gameUniquenessCheckerMock.Setup(uc => uc.IsUnique(_defaultGameTitle)).Returns(false);
 
             Assert.Throws<BusinessRuleValidationException>(() => HuntBotGame.CreateNewHuntBotGame(
                 id,
                 _defaultGameTitle,
                 _defaultGameStartDate,
                 _defaultGameEndDate,
-                gameUniquenessCheckerMock.Object
+                new List<string> { _defaultGameTitle }
             ));
         }
 
@@ -71,14 +66,13 @@ namespace HuntBot.Tests.UnitTests.Domain
         {
             var id = Guid.NewGuid();
             var title = "ThisTitleIsSeveralCharactersTooLong";
-            var gameUniquenessCheckerMock = new Mock<IGameUniquenessChecker>();
 
             Assert.Throws<BusinessRuleValidationException>(() => HuntBotGame.CreateNewHuntBotGame(
               id,
               title,
               _defaultGameStartDate,
               _defaultGameEndDate,
-              gameUniquenessCheckerMock.Object
+              new List<string>()
             ));
         }
 
@@ -87,14 +81,13 @@ namespace HuntBot.Tests.UnitTests.Domain
         {
             var id = Guid.NewGuid();
             var yesterday = DateTime.UtcNow.AddDays(-1);
-            var gameUniquenessCheckerMock = new Mock<IGameUniquenessChecker>();
 
             Assert.Throws<BusinessRuleValidationException>(() => HuntBotGame.CreateNewHuntBotGame(
                 id,
                 _defaultGameTitle,
                 yesterday,
                 _defaultGameEndDate,
-                gameUniquenessCheckerMock.Object
+                new List<string>()
             ));
         }
 
@@ -102,14 +95,13 @@ namespace HuntBot.Tests.UnitTests.Domain
         public void HuntBotGame_CreateNewHuntBotGameWithEndDateMatchingStartDate_ThrowsBusinessRuleValidationException()
         {
             var id = Guid.NewGuid();
-            var gameUniquenessCheckerMock = new Mock<IGameUniquenessChecker>();
 
             Assert.Throws<BusinessRuleValidationException>(() => HuntBotGame.CreateNewHuntBotGame(
                 id,
                 _defaultGameTitle,
                 _defaultGameStartDate,
                 _defaultGameStartDate,
-                gameUniquenessCheckerMock.Object
+                new List<string>()
             ));
         }
 
@@ -120,14 +112,9 @@ namespace HuntBot.Tests.UnitTests.Domain
             HuntBotGame huntBotGame;
 
             var huntBotGameId = Guid.NewGuid();
-            var gameUniquenessCheckerMock = new Mock<IGameUniquenessChecker>();
-            var participantUniquenessCheckerMock = new Mock<IParticipantUniquenessChecker>();
 
-            gameUniquenessCheckerMock.Setup(uc => uc.IsUnique(_defaultGameTitle)).Returns(true);
-            participantUniquenessCheckerMock.Setup(uc => uc.IsUnique(huntBotGameId, _defaultParticipantCitizenNumber)).Returns(true);
-
-            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, gameUniquenessCheckerMock.Object);
-            huntBotGame.AddParticipant(_defaultParticipantCitizenNumber, _defaultParticipantCitizenName, _defaultFoundGameObjectId, 5, participantUniquenessCheckerMock.Object);
+            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
+            huntBotGame.AddParticipant(_defaultParticipantCitizenNumber, _defaultParticipantCitizenName, _defaultFoundGameObjectId, 5, new List<GameParticipant>());
             gameParticipant = huntBotGame.Participants[0];
 
             Assert.Single(huntBotGame.Participants);
@@ -142,21 +129,16 @@ namespace HuntBot.Tests.UnitTests.Domain
         {
             HuntBotGame huntBotGame;
 
-            var huntBotGameId = Guid.NewGuid();
-            var gameUniquenessCheckerMock = new Mock<IGameUniquenessChecker>();
-            var participantUniquenessCheckerMock = new Mock<IParticipantUniquenessChecker>();
-
-            gameUniquenessCheckerMock.Setup(uc => uc.IsUnique(_defaultGameTitle)).Returns(true);
-            participantUniquenessCheckerMock.Setup(uc => uc.IsUnique(huntBotGameId, _defaultParticipantCitizenNumber)).Returns(false);
-
-            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, gameUniquenessCheckerMock.Object);
+            var huntBotGameId = Guid.NewGuid();            
+            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
+            huntBotGame.AddParticipant(_defaultParticipantCitizenNumber, _defaultParticipantCitizenName, _defaultFoundGameObjectId, 5, new List<GameParticipant>());
             
             Assert.Throws<BusinessRuleValidationException>(() => huntBotGame.AddParticipant(
                 _defaultParticipantCitizenNumber,
                 _defaultParticipantCitizenName,
                 _defaultFoundGameObjectId,
                 5,
-                participantUniquenessCheckerMock.Object
+                huntBotGame.Participants
             ));
         }
 
@@ -169,15 +151,10 @@ namespace HuntBot.Tests.UnitTests.Domain
 
             var pointsAwarded = 5000;
             var huntBotGameId = Guid.NewGuid();
-            var gameUniquenessCheckerMock = new Mock<IGameUniquenessChecker>();
-            var participantUniquenessCheckerMock = new Mock<IParticipantUniquenessChecker>();
             var pointsAwardedForRegistrationObjectFind = 5;
 
-            gameUniquenessCheckerMock.Setup(uc => uc.IsUnique(_defaultGameTitle)).Returns(true);
-            participantUniquenessCheckerMock.Setup(uc => uc.IsUnique(huntBotGameId, _defaultParticipantCitizenNumber)).Returns(true);
-
-            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, gameUniquenessCheckerMock.Object);
-            huntBotGame.AddParticipant(_defaultParticipantCitizenNumber, _defaultParticipantCitizenName, _defaultFoundGameObjectId, pointsAwardedForRegistrationObjectFind, participantUniquenessCheckerMock.Object);
+            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
+            huntBotGame.AddParticipant(_defaultParticipantCitizenNumber, _defaultParticipantCitizenName, _defaultFoundGameObjectId, pointsAwardedForRegistrationObjectFind, new List<GameParticipant>());
             gameParticipant = huntBotGame.Participants[0];
 
             gameParticipant.ParticipantFoundObject(_defaultFoundGameObjectId, pointsAwarded);
@@ -194,24 +171,20 @@ namespace HuntBot.Tests.UnitTests.Domain
         [Fact]
         public void HuntBotGame_AddGameObjectWithValidParams_AddGameObjectsToHuntBotGame()
         {
+            var gamePoints = 10;
             HuntBotGame huntBotGame;
             GameObject gameObject;
 
             var huntBotGameId = Guid.NewGuid();
-            var gameUniquenessCheckerMock = new Mock<IGameUniquenessChecker>();
-            var gameObjectUniquenessCheckerMock = new Mock<IObjectUniquenessChecker>();
-
-            gameUniquenessCheckerMock.Setup(uc => uc.IsUnique(_defaultGameTitle)).Returns(true);
-            gameObjectUniquenessCheckerMock.Setup(uc => uc.IsUnique(huntBotGameId, _defaultGameObjectId)).Returns(true);
-            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, gameUniquenessCheckerMock.Object);
-            huntBotGame.AddGameObject(_defaultGameObjectId, _defaultWorldName, 10, gameObjectUniquenessCheckerMock.Object);
+            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, new List<string>());
+            huntBotGame.AddGameObject(_defaultGameObjectId, _defaultWorldName, gamePoints, new List<GameObject>());
 
             gameObject = huntBotGame.GameObjects[0];
 
             Assert.NotNull(gameObject);
             Assert.Equal(_defaultGameObjectId, gameObject.Id);
             Assert.Equal(_defaultWorldName, gameObject.WorldName);
-            
+            Assert.Equal(10, gamePoints);
         }
     }
 }

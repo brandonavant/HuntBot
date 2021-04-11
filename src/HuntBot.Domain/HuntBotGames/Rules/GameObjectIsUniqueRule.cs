@@ -19,14 +19,9 @@ namespace HuntBot.Domain.HuntBotGames.Rules
         private readonly int _objectId;
 
         /// <summary>
-        /// The game id of the game for which the object's uniqueness is being checked.
+        /// Collection of <see cref="GameObject"/> against which an object's uniqueness is checked.
         /// </summary>
-        private readonly Guid _gameId;
-
-        /// <summary>
-        /// Resource with which an object id's uniqueness is checked.
-        /// </summary>
-        private readonly IObjectUniquenessChecker _objectUniquenessChecker;
+        private readonly List<GameObject> _gameObjects;
 
         /// <summary>
         /// The error message to be displayed to the user.
@@ -38,10 +33,10 @@ namespace HuntBot.Domain.HuntBotGames.Rules
         /// </summary>
         /// <param name="objectId">The error message to be displayed to the user.</param>
         /// <param name="objectUniquenessCHecker">Resource with which an object id's uniqueness is checked.</param>
-        public GameObjectIsUniqueRule(Guid gameId, int objectId, IObjectUniquenessChecker objectUniquenessCHecker)
+        public GameObjectIsUniqueRule(int objectId, List<GameObject> gameObjects)
         {
             _objectId = objectId;
-            _gameId = gameId;
+            _gameObjects = gameObjects;
         }
 
         /// <summary>
@@ -50,7 +45,7 @@ namespace HuntBot.Domain.HuntBotGames.Rules
         /// <returns>True if the rule is broken.</returns>
         public bool IsBroken()
         {
-            return !_objectUniquenessChecker.IsUnique(_gameId, _objectId);
+            return _gameObjects.Any(go => go.Id == _objectId);
         }
     }
 }

@@ -11,12 +11,12 @@ namespace HuntBot.Domain.HuntBotGames.GameObjects
         /// <summary>
         /// The number of points to be awarded to a participant upon finding this object.
         /// </summary>
-        public int Points { get; init; }
+        public int Points { get; private set; }
 
         /// <summary>
         /// The world in which this object exists.
         /// </summary>
-        public string WorldName { get; init; }
+        public string WorldName { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of <see cref="GameObject"/>.
@@ -30,7 +30,14 @@ namespace HuntBot.Domain.HuntBotGames.GameObjects
         /// <param name="event">The event to apply to the aggregate instance.</param>
         protected override void When(object @event)
         {
-            throw new NotImplementedException();
+            switch (@event)
+            {
+                case Events.GameObjectAdded e:
+                    Id = e.ObjectId;
+                    WorldName = e.WorldName;
+                    Points = e.Points;
+                    break;
+            }
         }
     }
 }
