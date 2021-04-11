@@ -33,7 +33,10 @@ namespace HuntBot.Domain.HuntBotGames
         /// </summary>
         public List<GameParticipant> Participants { get; private set; }
 
-
+        /// <summary>
+        /// List of game objects.
+        /// </summary>
+        public List<GameObject> GameObjects { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of <see cref="HuntBotGame"/>.
@@ -45,6 +48,7 @@ namespace HuntBot.Domain.HuntBotGames
         private HuntBotGame(Guid id, string title, DateTime startDate, DateTime endDate)
         {
             Participants = new List<GameParticipant>();
+            GameObjects = new List<GameObject>();
 
             ApplyChange(new Events.HuntBotGameCreated
             {
@@ -123,7 +127,14 @@ namespace HuntBot.Domain.HuntBotGames
                 throw new ArgumentNullException(nameof(objectUniquenessChecker));
             }
 
-            CheckRule
+            CheckRule(new GameObjectIsUniqueRule(this.Id, objectId, objectUniquenessChecker));
+
+            ApplyChange(new Events.GameObjectAdded
+            {
+                ObjectId = objectId,
+                WorldName = worldName,
+                Points = points
+            });
         }
 
         /// <summary>
@@ -160,6 +171,13 @@ namespace HuntBot.Domain.HuntBotGames
 
                     ApplyToEntity(newParticipant, e);
                     Participants.Add(newParticipant);
+                    break;
+                case Events.GameObjectAdded e:
+                    var newObject = new GameObject(ApplyChange);
+
+                    ApplyToEntity(newObject, e);
+                    GameObjects.Add(newObject);
+
                     break;
             }
         }

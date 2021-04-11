@@ -16,6 +16,8 @@ namespace HuntBot.Tests.UnitTests.Domain
         private readonly int _defaultParticipantCitizenNumber;
         private readonly string _defaultParticipantCitizenName;
         private readonly int _defaultFoundGameObjectId;
+        private readonly int _defaultGameObjectId;
+        private readonly string _defaultWorldName;
 
         public HuntBotGameTests()
         {
@@ -25,6 +27,8 @@ namespace HuntBot.Tests.UnitTests.Domain
             _defaultParticipantCitizenNumber = 339566;
             _defaultParticipantCitizenName = "Droog";
             _defaultFoundGameObjectId = 1000;
+            _defaultGameObjectId = 5000;
+            _defaultWorldName = "AW";
         }
 
         [Fact]
@@ -185,6 +189,29 @@ namespace HuntBot.Tests.UnitTests.Domain
             Assert.Equal(pointsAwarded, gameObjectFind.Points);
             Assert.Equal(DateTime.UtcNow.ToString("s"), gameObjectFind.FoundDate.ToString("s"));
             Assert.Equal(gameParticipant.GamePoints, pointsAwarded + pointsAwardedForRegistrationObjectFind);
+        }
+
+        [Fact]
+        public void HuntBotGame_AddGameObjectWithValidParams_AddGameObjectsToHuntBotGame()
+        {
+            HuntBotGame huntBotGame;
+            GameObject gameObject;
+
+            var huntBotGameId = Guid.NewGuid();
+            var gameUniquenessCheckerMock = new Mock<IGameUniquenessChecker>();
+            var gameObjectUniquenessCheckerMock = new Mock<IObjectUniquenessChecker>();
+
+            gameUniquenessCheckerMock.Setup(uc => uc.IsUnique(_defaultGameTitle)).Returns(true);
+            gameObjectUniquenessCheckerMock.Setup(uc => uc.IsUnique(huntBotGameId, _defaultGameObjectId)).Returns(true);
+            huntBotGame = HuntBotGame.CreateNewHuntBotGame(huntBotGameId, _defaultGameTitle, _defaultGameStartDate, _defaultGameEndDate, gameUniquenessCheckerMock.Object);
+            huntBotGame.AddGameObject(_defaultGameObjectId, _defaultWorldName, 10, gameObjectUniquenessCheckerMock.Object);
+
+            gameObject = huntBotGame.GameObjects[0];
+
+            Assert.NotNull(gameObject);
+            Assert.Equal(_defaultGameObjectId, gameObject.Id);
+            Assert.Equal(_defaultWorldName, gameObject.WorldName);
+            
         }
     }
 }
