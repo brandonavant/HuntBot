@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Threading.Tasks;
 using HuntBot.Infrastructure.Database.Sqlite;
 using Xunit;
@@ -12,6 +14,14 @@ namespace HuntBot.Tests.IntegrationTests
         {
             _sqliteConnectionFactory = SqliteConnectionFactory.GetInstance();
         }
+
+        // public void Dispose()
+        // {
+        //     if (File.Exists("huntbot.db"))
+        //     {
+        //         File.Delete("huntbot.db");
+        //     }
+        // }
 
         [Fact]
         public void SqliteConnectionFactory_GetConnection_ProvidesReadAndWriteAccessToDatabase()
@@ -32,9 +42,7 @@ namespace HuntBot.Tests.IntegrationTests
             }
             finally
             {
-                SqliteConnectionFactory
-                    .GetInstance()
-                    .ReleaseConnection();
+                _sqliteConnectionFactory.ReleaseConnection();
             }
 
             try
@@ -56,9 +64,7 @@ namespace HuntBot.Tests.IntegrationTests
             }
             finally
             {
-                SqliteConnectionFactory
-                    .GetInstance()
-                    .ReleaseConnection();
+                _sqliteConnectionFactory.ReleaseConnection();
             }
                 
             Assert.Equal(1, numberOfRecords);
@@ -81,9 +87,7 @@ namespace HuntBot.Tests.IntegrationTests
             }
             finally
             {
-                SqliteConnectionFactory
-                    .GetInstance()
-                    .ReleaseConnection();
+                _sqliteConnectionFactory.ReleaseConnection();
             }
 
             Task.Delay(100);
@@ -103,9 +107,7 @@ namespace HuntBot.Tests.IntegrationTests
             }
             finally
             {
-                SqliteConnectionFactory
-                    .GetInstance()
-                    .ReleaseConnection();
+                _sqliteConnectionFactory.ReleaseConnection();
             }
         }
 
@@ -121,9 +123,7 @@ namespace HuntBot.Tests.IntegrationTests
             }
             finally
             {
-                SqliteConnectionFactory
-                    .GetInstance()
-                    .ReleaseConnection();
+                _sqliteConnectionFactory.ReleaseConnection();
             }
         }
     }
