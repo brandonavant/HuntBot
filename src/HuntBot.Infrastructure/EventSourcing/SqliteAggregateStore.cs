@@ -1,10 +1,13 @@
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 using HuntBot.Domain.HuntBotGames;
 using HuntBot.Domain.SeedWork;
 using HuntBot.Infrastructure.Database.Sqlite;
+using HuntBot.Infrastructure.Models;
+using Newtonsoft.Json;
 using Serilog;
 
 namespace HuntBot.Infrastructure.EventStore
@@ -37,33 +40,76 @@ namespace HuntBot.Infrastructure.EventStore
         }
 
         public async Task<T> Load<T>(Guid aggregateId) where T : AggregateRoot
-        {
-            
-
+        {        
             try
             {
                 var aggregate = (T)Activator.CreateInstance(typeof(T), true);
                 var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Read);
                 var parameters = new { Id = aggregateId };
-                var aggregateRecord = await connection.QueryAsync<HuntBotGame>("SELECT Id FROM HuntBotGames WHERE Id = @Id", parameters);
+                var storedAggregate = await connection.QuerySingleOrDefaultAsync<StoredAggregate>("SELECT Id FROM HuntBotGames WHERE Id = @Id", parameters);
 
-                
-                
                 // TODO: Load the entire aggregate record from the store
                 // TODO: Get collection of changes in Changes column
                 // TODO: Iterate through each change and Load onto aggregate
+
+                return aggregate;
             }
             catch (Exception ex)
             {
                 Log.Logger.Error(ex, "Failed to lookup aggregate {aggregateId}.", aggregateId);
+                return null;
             }
-
-            throw new NotImplementedException();
+            finally
+            {   
+                _sqliteConnectionFactory.ReleaseConnection();
+            }
         }
 
-        public Task Save<T>(T aggregate) where T : AggregateRoot
+        public async Task Save<T>(T aggregate) where T : AggregateRoot
         {
-            throw new NotImplementedException();
+            var changes = aggregate
+                .GetChanges()
+                .Select(@event =>
+                    new StoredEvent(
+                        aggregate.Version,
+                        Serialize(@event),
+                        @event.GetType().AssemblyQualifiedName
+                    )
+                );
+            
+            if (!changes.Any())
+            {
+                return;
+            }
+
+            try
+            {
+                var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Write);
+                var parameters = new { Id = aggregate.Id, StoredEvents = Serialize(changes) };
+
+                // TODO: Below is just a quick test. I actually need to load anything that exists already and append this set of changes.
+                await connection.ExecuteAsync("INSERT INTO HuntBotGames (Id, StoredEvents) VALUES(@Id, @StoredEvents) ON CONFLICT(Id) DO UPDATE SET StoredEvents=@StoredEvents", parameters);
+
+                aggregate.ClearChanges();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "Failed to load aggregate {aggregateId}.", aggregate.Id);
+            }
+            finally
+            {
+                _sqliteConnectionFactory.ReleaseConnection();
+            }
+        }
+
+        /// <summary>
+        /// Serializes an object to raw bytes.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>The raw bytes of the serialized object.</returns>
+        public static byte[] Serialize(object data)
+        {
+            return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data));
         }
     }
 }

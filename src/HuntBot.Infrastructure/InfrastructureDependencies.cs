@@ -27,7 +27,7 @@ namespace HuntBot.Infrastructure
                 var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Write);
                 var command = connection.CreateCommand();
 
-                command.CommandText = "CREATE TABLE IF NOT EXISTS HuntBotGames (Id TEXT NOT NULL PRIMARY KEY, GameName VARCHAR(32), Store TEXT)";
+                command.CommandText = "CREATE TABLE IF NOT EXISTS HuntBotGames (Id TEXT NOT NULL PRIMARY KEY, StoredEvents BLOB)";
                 command.ExecuteNonQuery();
             }
             catch(Exception ex)
