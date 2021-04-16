@@ -12,7 +12,7 @@ namespace HuntBot.Tests.IntegrationTests
         [Fact]
         public async void SqliteAggregateStore_Save_SerializesDataAsByteArrayCorrectly()
         {
-            var huntBotGameId = Guid.NewGuid();
+            var huntBotGameId = new Guid("C0A4DBC6-C4AB-4AD9-894C-01FBF37CF4E8");
 
             HuntBotGame huntBotGame = HuntBotGame.CreateNewHuntBotGame(
                 huntBotGameId, 

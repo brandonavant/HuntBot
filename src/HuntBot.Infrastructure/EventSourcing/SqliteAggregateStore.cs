@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,7 +47,7 @@ namespace HuntBot.Infrastructure.EventStore
                 var aggregate = (T)Activator.CreateInstance(typeof(T), true);
                 var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Read);
                 var parameters = new { Id = aggregateId };
-                var storedAggregate = await connection.QuerySingleOrDefaultAsync<StoredAggregate>("SELECT Id FROM HuntBotGames WHERE Id = @Id", parameters);
+                var storedAggregate = await connection.QuerySingleOrDefaultAsync<StoredAggregate>(Queries.GetAggregateById, parameters);
 
                 // TODO: Load the entire aggregate record from the store
                 // TODO: Get collection of changes in Changes column
@@ -86,8 +87,15 @@ namespace HuntBot.Infrastructure.EventStore
             {
                 var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Write);
                 var parameters = new { Id = aggregate.Id, StoredEvents = Serialize(changes) };
+                var existingAggregate = await connection.QueryFirstOrDefaultAsync<StoredAggregate>(Queries.GetAggregateById, new { AggregateId = aggregate.Id.ToString().ToUpper() });
 
-                // TODO: Below is just a quick test. I actually need to load anything that exists already and append this set of changes.
+                if (existingAggregate is not null)
+                {
+                    var storedEvents = JsonConvert.DeserializeObject<IEnumerable<StoredEvent>>(
+                        Encoding.UTF8.GetString(existingAggregate.StoredEvents)
+                    );
+                }
+
                 await connection.ExecuteAsync("INSERT INTO HuntBotGames (Id, StoredEvents) VALUES(@Id, @StoredEvents) ON CONFLICT(Id) DO UPDATE SET StoredEvents=@StoredEvents", parameters);
 
                 aggregate.ClearChanges();
