@@ -67,9 +67,9 @@ namespace HuntBot.Domain.SeedWork
         /// </summary>
         /// <param name="history"></param>
         /// <returns></returns>
-        public async Task Load(IAsyncEnumerable<object> history)
+        public void Load(IEnumerable<object> history)
         {
-            await foreach (var @event in history)
+            foreach (var @event in history)
             {
                 When(@event);
                 Version++;

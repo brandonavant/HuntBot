@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
-using HuntBot.Domain.HuntBotGames;
 using HuntBot.Domain.SeedWork;
 using HuntBot.Infrastructure.Database.Sqlite;
 using HuntBot.Infrastructure.Models;
@@ -46,12 +45,35 @@ namespace HuntBot.Infrastructure.EventStore
             {
                 var aggregate = (T)Activator.CreateInstance(typeof(T), true);
                 var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Read);
-                var parameters = new { Id = aggregateId };
-                var storedAggregate = await connection.QueryFirstOrDefaultAsync<StoredAggregate>(Queries.GetAggregateById, parameters);
+                var existingAggregateRecord = await connection.QueryFirstOrDefaultAsync<StoredAggregate>(
+                    Queries.GetAggregateById, 
+                    new 
+                    { 
+                        AggregateId = aggregateId
+                        .ToString()
+                        .ToUpper() 
+                    }
+                );
 
-                // TODO: Load the entire aggregate record from the store
-                // TODO: Get collection of changes in Changes column
-                // TODO: Iterate through each change and Load onto aggregate
+                if (existingAggregateRecord is null)
+                {
+                    return null;
+                }
+
+                var events = JsonConvert.DeserializeObject<List<StoredEvent>>(
+                    Encoding.UTF8.GetString(existingAggregateRecord.StoredEvents)
+                );
+
+                // TODO bavant: Need to figure out how to implement IAsyncEnumerable
+                var history = events.Select(@event =>
+                {
+                    var clrType = Type.GetType(@event.ClrType);
+                    var jsonData = Encoding.UTF8.GetString(@event.Data.ToArray());
+                    
+                    return JsonConvert.DeserializeObject(jsonData, clrType);
+                });
+
+                aggregate.Load(history);
 
                 return aggregate;
             }

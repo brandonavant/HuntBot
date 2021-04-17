@@ -41,6 +41,15 @@ namespace HuntBot.Domain.HuntBotGames
         /// <summary>
         /// Initializes a new instance of <see cref="HuntBotGame"/>.
         /// </summary>
+        private HuntBotGame()
+        {
+            GameParticipants = new List<GameParticipant>();
+            GameObjects = new List<GameObject>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="HuntBotGame"/>.
+        /// </summary>
         /// <param name="id">The id of the newly created game..</param>
         /// <param name="title">The title of the newly-created game.</param>
         /// <param name="startDate">The date and time in which the game begins.</param>

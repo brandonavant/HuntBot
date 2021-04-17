@@ -19,24 +19,26 @@ namespace HuntBot.Tests.IntegrationTests
         [Fact]
         public async void SqliteAggregateStore_Save_SerializesDataAsByteArrayCorrectly()
         {
-            HuntBotGame huntBotGame = HuntBotGame.CreateNewHuntBotGame(
-                _huntBotGameId, 
-                "Easter Huntbot Game", 
-                DateTime.UtcNow.AddDays(1), 
-                DateTime.UtcNow.AddDays(7), 
-                new List<string>()
-            );
+            // HuntBotGame huntBotGame = HuntBotGame.CreateNewHuntBotGame(
+            //     _huntBotGameId, 
+            //     "Easter Huntbot Game", 
+            //     DateTime.UtcNow.AddDays(1), 
+            //     DateTime.UtcNow.AddDays(7), 
+            //     new List<string>()
+            // );
 
-            huntBotGame.AddGameObject(1000, "Droog", 5002);
+            // huntBotGame.AddGameObject(1000, "Droog", 5002);
 
             SqliteConnectionFactory sqliteConnectionFactory = SqliteConnectionFactory.GetInstance();
             SqliteAggregateStore store = new SqliteAggregateStore(sqliteConnectionFactory);
             
-            await store.Save<HuntBotGame>(huntBotGame);
+            // await store.Save<HuntBotGame>(huntBotGame);
 
-            huntBotGame.AddGameObject(1001, "Droog", 10);
+            // huntBotGame.AddGameObject(1001, "Droog", 10);
 
-            await store.Save<HuntBotGame>(huntBotGame);
+            // await store.Save<HuntBotGame>(huntBotGame);
+
+            var loadedAggregate = await store.Load<HuntBotGame>(_huntBotGameId);
         }
     }
 }
