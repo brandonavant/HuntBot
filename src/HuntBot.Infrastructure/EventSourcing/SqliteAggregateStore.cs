@@ -41,13 +41,13 @@ namespace HuntBot.Infrastructure.EventStore
         }
 
         public async Task<T> Load<T>(Guid aggregateId) where T : AggregateRoot
-        {        
+        {
             try
             {
                 var aggregate = (T)Activator.CreateInstance(typeof(T), true);
                 var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Read);
                 var parameters = new { Id = aggregateId };
-                var storedAggregate = await connection.QuerySingleOrDefaultAsync<StoredAggregate>(Queries.GetAggregateById, parameters);
+                var storedAggregate = await connection.QueryFirstOrDefaultAsync<StoredAggregate>(Queries.GetAggregateById, parameters);
 
                 // TODO: Load the entire aggregate record from the store
                 // TODO: Get collection of changes in Changes column
@@ -61,42 +61,59 @@ namespace HuntBot.Infrastructure.EventStore
                 return null;
             }
             finally
-            {   
+            {
                 _sqliteConnectionFactory.ReleaseConnection();
             }
         }
 
         public async Task Save<T>(T aggregate) where T : AggregateRoot
         {
-            var changes = aggregate
-                .GetChanges()
-                .Select(@event =>
-                    new StoredEvent(
-                        aggregate.Version,
-                        Serialize(@event),
-                        @event.GetType().AssemblyQualifiedName
-                    )
-                );
-            
-            if (!changes.Any())
-            {
-                return;
-            }
+            List<StoredEvent> eventsToStore = new List<StoredEvent>();
 
             try
             {
                 var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Write);
-                var parameters = new { Id = aggregate.Id, StoredEvents = Serialize(changes) };
-                var existingAggregate = await connection.QueryFirstOrDefaultAsync<StoredAggregate>(Queries.GetAggregateById, new { AggregateId = aggregate.Id.ToString().ToUpper() });
-
-                if (existingAggregate is not null)
+                var nextVersion = 0;
+                var existingAggregateRecord = await connection.QueryFirstOrDefaultAsync<StoredAggregate>(
+                    Queries.GetAggregateById, 
+                    new 
+                    { 
+                        AggregateId = aggregate
+                        .Id
+                        .ToString()
+                        .ToUpper() 
+                    }
+                );
+                
+                if (existingAggregateRecord is not null)
                 {
-                    var storedEvents = JsonConvert.DeserializeObject<IEnumerable<StoredEvent>>(
-                        Encoding.UTF8.GetString(existingAggregate.StoredEvents)
+                    eventsToStore = JsonConvert.DeserializeObject<List<StoredEvent>>(
+                        Encoding.UTF8.GetString(existingAggregateRecord.StoredEvents)
                     );
+
+                    nextVersion = eventsToStore.Max(ets => ets.StreamPosition) + 1;
                 }
 
-                await connection.ExecuteAsync("INSERT INTO HuntBotGames (Id, StoredEvents) VALUES(@Id, @StoredEvents) ON CONFLICT(Id) DO UPDATE SET StoredEvents=@StoredEvents", parameters);
+                var changesToAdd = aggregate.GetChanges().ToList();
+
+                if (!changesToAdd.Any())
+                {
+                    return;
+                }
+
+                foreach(var @event in changesToAdd)
+                {
+                    eventsToStore.Add(new StoredEvent(
+                        nextVersion,
+                        Serialize(@event),
+                        @event.GetType().AssemblyQualifiedName
+                    ));
+
+                    nextVersion++;
+                }
+                var parameters = new { Id = aggregate.Id, StoredEvents = Serialize(eventsToStore) };
+
+                await connection.ExecuteAsync(Queries.InsertNewHuntBotGame, parameters);
 
                 aggregate.ClearChanges();
             }
