@@ -29,8 +29,8 @@ namespace HuntBot.Tests.IntegrationTests
 
             // huntBotGame.AddGameObject(1000, "Droog", 5002);
 
-            SqliteConnectionFactory sqliteConnectionFactory = SqliteConnectionFactory.GetInstance();
-            SqliteAggregateStore store = new SqliteAggregateStore(sqliteConnectionFactory);
+            // SqliteConnectionFactory sqliteConnectionFactory = SqliteConnectionFactory.GetInstance();
+            // SqliteAggregateStore store = new SqliteAggregateStore(sqliteConnectionFactory);
             
             // await store.Save<HuntBotGame>(huntBotGame);
 
@@ -38,7 +38,22 @@ namespace HuntBot.Tests.IntegrationTests
 
             // await store.Save<HuntBotGame>(huntBotGame);
 
-            var loadedAggregate = await store.Load<HuntBotGame>(_huntBotGameId);
+            // var loadedAggregate = await store.Load<HuntBotGame>(_huntBotGameId);
+
+            HuntBotGame huntBotGame = HuntBotGame.CreateNewHuntBotGame(
+                Guid.NewGuid(), 
+                "Forth of July Huntbot Game", 
+                DateTime.UtcNow.AddDays(1), 
+                DateTime.UtcNow.AddDays(7), 
+                new List<string>()
+            );
+            
+            SqliteConnectionFactory sqliteConnectionFactory = SqliteConnectionFactory.GetInstance();
+            SqliteAggregateStore store = new SqliteAggregateStore(sqliteConnectionFactory);
+            
+            await store.Save<HuntBotGame>(huntBotGame);
+
+            var aggregates = store.LoadAll<HuntBotGame>();
         }
     }
 }

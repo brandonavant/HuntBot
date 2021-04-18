@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HuntBot.Domain.SeedWork
@@ -27,5 +28,12 @@ namespace HuntBot.Domain.SeedWork
          /// <typeparam name="T">The type of the aggregate.</typeparam>
          /// <returns>An instance of <see cref="AggregateRoot"/> loaded from the aggregate store.</returns>
          Task<T> Load<T>(Guid aggregateId) where T : AggregateRoot;
+
+        /// <summary>
+        /// Loads a collection of <see cref="AggregateRoot"/> from the aggregate store.
+        /// </summary>
+        /// <typeparam name="T">The type of the aggregate.</typeparam>
+        /// <returns>A collection of <see cref="AggregateRoot"/> from the aggregate store.</returns>
+         Task<List<T>> LoadAll<T>() where T : AggregateRoot;
     }
 }

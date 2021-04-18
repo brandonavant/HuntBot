@@ -39,9 +39,14 @@ namespace HuntBot.Infrastructure.EventStore
             try
             {
                 var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Read);
-                var count = await connection.ExecuteScalarAsync<int>(Queries.CheckIfAggregateExists, new { Id = aggregateId });
+                var count = await connection.ExecuteScalarAsync<int>(SqlStatements.CheckIfAggregateExists, new { Id = aggregateId });
+                
+                if (count > 1)
+                {
+                    Log.Logger.Error("Found duplicate records for Aggregate with Id @aggregateId", aggregateId);
+                }
 
-                return count == 1;
+                return count > 0;
             }
             catch (Exception ex)
             {
@@ -64,7 +69,7 @@ namespace HuntBot.Infrastructure.EventStore
                 var aggregate = (T)Activator.CreateInstance(typeof(T), true);
                 var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Read);
                 var existingAggregateRecord = await connection.QueryFirstOrDefaultAsync<StoredAggregate>(
-                    Queries.GetAggregateById, 
+                    SqlStatements.GetAggregateById, 
                     new 
                     { 
                         AggregateId = aggregateId
@@ -107,6 +112,37 @@ namespace HuntBot.Infrastructure.EventStore
         }
 
         /// <summary>
+        /// Loads a collection of all aggregates in the aggregate store.
+        /// </summary>
+        /// <typeparam name="T">The CLR type of the aggregate.</typeparam>
+        /// <returns>A list of aggregates.</returns>
+        public async Task<List<T>> LoadAll<T>() where T : AggregateRoot
+        {
+            try
+            {
+                List<T> aggregates = new List<T>();
+
+                var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Read);        
+                var aggregateIds = await connection.QueryAsync<string>(SqlStatements.GetAggregateIds);
+                
+                // Must release the connection for the Load method to be able to use it.
+                _sqliteConnectionFactory.ReleaseConnection();
+
+                foreach (var id in aggregateIds)
+                {
+                    aggregates.Add(await this.Load<T>(new Guid(id)));
+                }
+
+                return aggregates;
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "Failed to load list of aggregate ids");
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Stores a set of changes for a given aggregate record.
         /// </summary>
         /// <param name="aggregate">The aggregate record whose changes are being stored.</param>
@@ -120,7 +156,7 @@ namespace HuntBot.Infrastructure.EventStore
                 var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Write);
                 var nextVersion = 0;
                 var existingAggregateRecord = await connection.QueryFirstOrDefaultAsync<StoredAggregate>(
-                    Queries.GetAggregateById, 
+                    SqlStatements.GetAggregateById, 
                     new 
                     { 
                         AggregateId = aggregate
@@ -158,13 +194,14 @@ namespace HuntBot.Infrastructure.EventStore
                 }
                 var parameters = new { Id = aggregate.Id, StoredEvents = Serialize(eventsToStore) };
 
-                await connection.ExecuteAsync(Queries.InsertNewHuntBotGame, parameters);
+                await connection.ExecuteAsync(SqlStatements.InsertNewHuntBotGame, parameters);
 
                 aggregate.ClearChanges();
             }
             catch (Exception ex)
             {
                 Log.Logger.Error(ex, "Failed to load aggregate {aggregateId}.", aggregate.Id);
+                throw;
             }
             finally
             {
