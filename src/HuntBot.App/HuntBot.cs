@@ -1,6 +1,10 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AW;
+using HuntBot.Application.CreateNewHuntBotGame;
+using HuntBot.Domain.HuntBotGames;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -19,12 +23,18 @@ namespace HuntBot.App
         private readonly IConfiguration _configuration;
 
         /// <summary>
+        /// Mediator with which commands and query requests and dispatched.
+        /// </summary>
+        private readonly IMediator _mediator;
+
+        /// <summary>
         /// Initializes a new instance of HuntBot.
         /// </summary>
         /// <param name="configuration"></param>
-        public HuntBot(IConfiguration configuration)
+        public HuntBot(IConfiguration configuration, IMediator mediator)
         {
             _configuration = configuration;
+            _mediator = mediator;
         }
 
         /// <summary>
@@ -32,16 +42,24 @@ namespace HuntBot.App
         /// </summary>
         /// <param name="stoppingToken">Token which signals that the operation should be terminated.</param>
         /// <returns><see cref="Task.CompletedTask"/> when the task is complete.</returns>
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            // TODO: Read configuration and determine how many instances should be created (i.e. in how many worlds will the event be hosted -- up  to 5 worlds for now).
-            // TODO: Create an instance per world in the event.
-            // TODO: Determine if we are continuing a previous event (indicated by config file, for now).
-            // TODO: Begin scanning each world. Once scanning is complete, store the results (i.e. egg count) in database.
+            // Check the configuration for the HuntBotGame configuration. The configuration should only care about the game name name, citnum, bot name, privpass, and world.
+            // If the configuration isn't right, present an error.
+            // if the configuration is right, create a new HuntBotGame and start the bot.
+            // Announce to the world that we are preparing the game; block any finds until querying is complete
+            // Start querying the world, adding a GameObject for each object found
+            // If an Add throws an exception indicating that it was already added, log it and move on
+            // Once querying is complete, announce to the world that the game is started.
+            // Begin tracking "finds"
+            // Whisper to a player when they've found a new object; if it was already found, let them know that they've already found it.
 
             // TODO: When a user enters the world, check the CitizenName stored in the database for their CitizenNumber. If it is different, change it in the DB.
+            // var newHuntBotGame = await _mediator.Send<HuntBotGame>(
+            //     new CreateNewHuntBotGameCommand("AppLevelTest", DateTime.UtcNow.AddDays(1), DateTime.UtcNow.AddDays(2))
+            // );
 
-            return Task.CompletedTask;
+            while(!stoppingToken.IsCancellationRequested && Utility.Wait(-1) != ReasonCode.Success);
         }
     }
 }

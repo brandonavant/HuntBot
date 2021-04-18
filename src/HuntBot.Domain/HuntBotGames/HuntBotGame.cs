@@ -140,8 +140,10 @@ namespace HuntBot.Domain.HuntBotGames
         public void ParticipantFoundObject(int citizenNumber, int objectId, int points)
         {
             var participant = GameParticipants.FirstOrDefault(p => p.Id == citizenNumber);
+            var findIds = participant.ObjectFinds.Select(of => of.ObjectId);
 
             CheckRule(new ParticipantIsRegisteredInGameRule(participant));
+            CheckRule(new ParticipantHasNotFoundObjectAlreadyRule(citizenNumber, objectId, findIds));
 
             participant.ParticipantFoundObject(objectId, points);
         }

@@ -1,5 +1,7 @@
 ﻿using System;
+using HuntBot.Domain.SeedWork;
 using HuntBot.Infrastructure.Database.Sqlite;
+using HuntBot.Infrastructure.EventStore;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
@@ -13,7 +15,7 @@ namespace HuntBot.Infrastructure
         {
             InitializeDatabase();
 
-            services.AddSingleton<SqliteConnectionFactory>(_sqliteConnectionFactory);
+            services.AddSingleton<IAggregateStore>(new SqliteAggregateStore(_sqliteConnectionFactory));
             return services;
         }
 

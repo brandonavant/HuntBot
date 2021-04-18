@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using HuntBot.Application;
 using HuntBot.Infrastructure;
 using HuntBot.Infrastructure.Database.Sqlite;
 using Microsoft.Extensions.Configuration;
@@ -48,6 +49,7 @@ namespace HuntBot.App
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<HuntBot>();
+                    services.AddApplicationDependencies();
                     services.AddInfrastructureDependencies();
                 });
         }
