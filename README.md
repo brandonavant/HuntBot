@@ -14,4 +14,3 @@
 # Frameworks and Libraries
 
 - Byte's AW SDK Wrapper - I've revived this project through a fork and will be making required and useful updates. - https://github.com/brandonavant/AW.SDK.Core
-- Kledex - A .NET Core framework used to implement Event Sourcing via SQLite. - https://lucabriguglia.github.io/Kledex
