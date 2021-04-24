@@ -3,6 +3,10 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="AW.Core" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
@@ -10,7 +14,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HuntBot.Infrastructure\HuntBot.Infrastructure.csproj" />
-    <ProjectReference Include="..\HuntBot.Application\HuntBot.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">
