@@ -1,15 +1,6 @@
 # HuntBot
 
-## Notes
-
-- To join the event, simply click one of the Huntable Items. Your clicks and standings will be tracked automatically from that point on.
-
-# Bot Commands
-
-- `!event` - States event information, such as the name, description, the duration, etc.
-- `!version` or `<bot_name> verison` - States the current bot version.
-- `!worlds` - Lists all of the worlds participating in the event.
-- `!count` - Displays the speak their current object find count.
+Please be advised that this project is currently under development.
 
 # Frameworks and Libraries
 
