@@ -18,11 +18,6 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotConfiguration
         public string PrivilegePassword { get; set; }
 
         /// <summary>
-        /// The world in which the newly created instance will enter.
-        /// </summary>
-        public string World { get; set; }
-
-        /// <summary>
         /// The world location to which the instance will be created.
         /// </summary>
         public Location Location { get; set; }

@@ -1,5 +1,4 @@
 ﻿using HuntBot.Domain.Constants;
-using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -7,6 +6,11 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotLocation
 {
     public record Location
     {
+        /// <summary>
+        /// The world which the HuntBot instance will enter.
+        /// </summary>
+        public string World { get; set; }
+
         /// <summary>
         /// The HuntBot instance's position (in centimeters) along the east/west axis, with west being positive.
         /// </summary>
@@ -33,10 +37,11 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotLocation
         private enum LocationRegexGroupIndex
         {
             Capture = 0,
-            NorthSouthPos = 1,
-            EastWestPos = 2,
-            AltitudePos = 3,
-            Yaw = 4
+            World = 1,
+            NorthSouthPos = 2,
+            EastWestPos = 3,
+            AltitudePos = 4,
+            Yaw = 5
         }
 
         /// <summary>
@@ -55,19 +60,21 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotLocation
             result = null;
 
             // We require the NSEW pieces, at least.
-            if (!match.Groups[(int)LocationRegexGroupIndex.NorthSouthPos].Success || !match.Groups[(int)LocationRegexGroupIndex.EastWestPos].Success)
+            if (!match.Groups[(int)LocationRegexGroupIndex.World].Success || !match.Groups[(int)LocationRegexGroupIndex.NorthSouthPos].Success || !match.Groups[(int)LocationRegexGroupIndex.EastWestPos].Success)
             {
                 return false;
             }
 
             try
             {
-                var altitudePiece = match.Groups[(int)LocationRegexGroupIndex.AltitudePos];
+                var worldPiece = match.Groups[(int)LocationRegexGroupIndex.World];
                 var nsPiece = match.Groups[(int)LocationRegexGroupIndex.NorthSouthPos];
                 var ewPiece = match.Groups[(int)LocationRegexGroupIndex.EastWestPos];
+                var altitudePiece = match.Groups[(int)LocationRegexGroupIndex.AltitudePos];
                 var yawPiece = match.Groups[(int)LocationRegexGroupIndex.Yaw];
 
                 // We don't technically need to do a TryParse, because the regex has taken care of that for us.
+                location.World = worldPiece.Value;
                 location.Z = float.Parse(GetValueForCoordinatePiece(nsPiece.Value));
                 location.X = float.Parse(GetValueForCoordinatePiece(ewPiece.Value));
                 location.Y = altitudePiece.Success ? float.Parse(altitudePiece.Value) : 0;

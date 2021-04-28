@@ -8,6 +8,6 @@
         /// X = 140.77, Y = 0.5, Z = 120.44, and Yaw = 3599 will be parsed out.
         /// </summary>
         /// TODO: This can be improved more to place limitation on decimal places and number ranges.
-        public const string Coordinates = @"^(\d*\.?\d+[NS]){1}\s+(\d*\.?\d+[EW]){1}(\s+\d*\.?\d+[A])?(\s+\d+)?";
+        public const string Coordinates = @"^(\w+){1}\s+(\d*\.?\d+[NS]){1}\s+(\d*\.?\d+[EW]){1}(\s+\d*\.?\d+[A])?(\s+\d+)?";
     }
 }
