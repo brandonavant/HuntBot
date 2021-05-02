@@ -38,11 +38,18 @@ namespace HuntBot.App
         /// <param name="logger">Used to log information and errors to the configured logging sink.</param>
         public FrmMain(IMediator mediator, ILogger<FrmMain> logger)
         {
-            _mediator = mediator;
-            _logger = logger;
-            _aw = new Instance();
+            try
+            {
+                _mediator = mediator;
+                _logger = logger;
+                _aw = new Instance();
 
-            InitializeComponent();
+                InitializeComponent();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogCritical(ex, "An unexpected exception occurred while attempting to initialize FrmMain.");
+            }
         }
 
         /// <summary>2

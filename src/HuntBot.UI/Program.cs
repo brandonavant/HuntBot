@@ -67,6 +67,7 @@ namespace HuntBot.App
                     // Dependencies
                     services.AddApplicationDependencies();
                     services.AddInfrastructureDependencies();
+                    services.AddScoped<FrmMain>();
                 });
         }
     }
