@@ -11,9 +11,9 @@ namespace HuntBot.Infrastructure.Database.Sqlite
         public const string GetAggregateById = "SELECT Id, StoredEvents FROM HuntBotGames WHERE Id = @AggregateId";
 
         /// <summary>
-        /// Inserts a new HuntBotGame record into the aggregate store.
+        /// Upserts a HuntBotGame record into the aggregate store.
         /// </summary>
-        public const string InsertNewHuntBotGame = "INSERT INTO HuntBotGames (Id, StoredEvents) VALUES(@Id, @StoredEvents) ON CONFLICT(Id) DO UPDATE SET StoredEvents=@StoredEvents";
+        public const string UpsertNewHuntBotGame = "INSERT INTO HuntBotGames (Id, StoredEvents) VALUES(@Id, @StoredEvents) ON CONFLICT(Id) DO UPDATE SET StoredEvents=@StoredEvents";
 
         /// <summary>
         /// Returns the count of aggregate records with a given aggregate Id. There should only ever be one, so this should be used to check if a record exists.
@@ -29,5 +29,15 @@ namespace HuntBot.Infrastructure.Database.Sqlite
         /// Gets a collection of all of the aggregate ids.
         /// </summary>
         public const string GetAggregateIds = "SELECT Id FROM HuntBotGames";
+
+        /// <summary>
+        /// Gets the serialized HuntBotConfiguration from the database.
+        /// </summary>
+        public const string GetHuntBotConfig = "SELECT Key, Value FROM JsonStore WHERE Key = @Key";
+
+        /// <summary>
+        /// Upserts a HuntBotConfig record into the database.
+        /// </summary>
+        public const string UpsertHuntBotConfig = "INSERT INTO JsonStore (Key, Value) VALUES (@Key, @Value) ON CONFLICT(Key) DO UPDATE SET Value=@Value";
     }
 }

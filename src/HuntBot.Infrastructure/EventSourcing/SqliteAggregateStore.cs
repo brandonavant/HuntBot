@@ -78,37 +78,36 @@ namespace HuntBot.Infrastructure.EventStore
                     }
                 );
 
-                if (existingAggregateRecord is null)
+                if (existingAggregateRecord is not null)
                 {
-                    return null;
+                    var events = JsonConvert.DeserializeObject<List<StoredEvent>>(
+                        Encoding.UTF8.GetString(existingAggregateRecord.StoredEvents)
+                    );
+
+                    // TODO bavant: Need to figure out how to implement IAsyncEnumerable
+                    var history = events.Select(@event =>
+                    {
+                        var clrType = Type.GetType(@event.ClrType);
+                        var jsonData = Encoding.UTF8.GetString(@event.Data.ToArray());
+
+                        return JsonConvert.DeserializeObject(jsonData, clrType);
+                    });
+
+                    aggregate.Load(history);
+
+                    return aggregate;
                 }
-
-                var events = JsonConvert.DeserializeObject<List<StoredEvent>>(
-                    Encoding.UTF8.GetString(existingAggregateRecord.StoredEvents)
-                );
-
-                // TODO bavant: Need to figure out how to implement IAsyncEnumerable
-                var history = events.Select(@event =>
-                {
-                    var clrType = Type.GetType(@event.ClrType);
-                    var jsonData = Encoding.UTF8.GetString(@event.Data.ToArray());
-                    
-                    return JsonConvert.DeserializeObject(jsonData, clrType);
-                });
-
-                aggregate.Load(history);
-
-                return aggregate;
             }
             catch (Exception ex)
             {
                 Log.Logger.Error(ex, "Failed to lookup aggregate {aggregateId}.", aggregateId);
-                return null;
             }
             finally
             {
                 _sqliteConnectionFactory.ReleaseConnection();
             }
+
+            return null;
         }
 
         /// <summary>
@@ -194,7 +193,7 @@ namespace HuntBot.Infrastructure.EventStore
                 }
                 var parameters = new { Id = aggregate.Id, StoredEvents = Serialize(eventsToStore) };
 
-                await connection.ExecuteAsync(SqlStatements.InsertNewHuntBotGame, parameters);
+                await connection.ExecuteAsync(SqlStatements.UpsertNewHuntBotGame, parameters);
 
                 aggregate.ClearChanges();
             }
