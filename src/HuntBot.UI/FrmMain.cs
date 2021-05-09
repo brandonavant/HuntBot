@@ -1,14 +1,10 @@
 ﻿using AW;
+using HuntBot.Application.SaveHuntBotConfiguration;
+using HuntBot.Domain.HuntBotGames.HuntBotConfiguration;
+using HuntBot.Domain.HuntBotGames.HuntBotLocation;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -57,9 +53,19 @@ namespace HuntBot.App
         /// </summary>
         /// <param name="sender">The construct that raised the Load event.</param>
         /// <param name="e">Encapsulates arguments passed into the Load event.</param>
-        private void FrmMain_Load(object sender, EventArgs e)
+        private async void FrmMain_Load(object sender, EventArgs e)
         {
+            Location location;
+            Domain.HuntBotGames.HuntBotLocation.Location.TryParseLocation("Droog 0n 0w 0a 0", out location);
 
+            await _mediator.Send(new SaveHuntBotConfigurationCommand(
+                new HuntBotConfig
+                {
+                    CitizenNumber = 339566,
+                    Location = location,
+                    PrivilegePassword = "ThisIsAPassword"
+                })
+            );
         }
     }
 }

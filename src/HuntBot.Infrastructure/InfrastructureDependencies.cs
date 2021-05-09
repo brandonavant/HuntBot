@@ -1,7 +1,9 @@
 ﻿using System;
+using HuntBot.Domain.HuntBotGames.HuntBotConfiguration;
 using HuntBot.Domain.SeedWork;
 using HuntBot.Infrastructure.Database.Sqlite;
 using HuntBot.Infrastructure.EventStore;
+using HuntBot.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
@@ -15,7 +17,10 @@ namespace HuntBot.Infrastructure
         {
             InitializeDatabase();
 
+            services.AddSingleton(SqliteConnectionFactory.GetInstance());
             services.AddSingleton<IAggregateStore>(new SqliteAggregateStore(_sqliteConnectionFactory));
+            services.AddTransient<IHuntBotConfigRepository, HuntBotConfigRepository>();
+
             return services;
         }
 
@@ -30,6 +35,9 @@ namespace HuntBot.Infrastructure
                 var command = connection.CreateCommand();
 
                 command.CommandText = SqlStatements.CreateHuntBotGamesTableIfNotExists;
+                command.ExecuteNonQuery();
+
+                command.CommandText = SqlStatements.CreateJsonStoreTableIfNotExists;
                 command.ExecuteNonQuery();
             }
             catch(Exception ex)

@@ -77,7 +77,7 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotLocation
                 location.World = worldPiece.Value;
                 location.Z = float.Parse(GetValueForCoordinatePiece(nsPiece.Value));
                 location.X = float.Parse(GetValueForCoordinatePiece(ewPiece.Value));
-                location.Y = altitudePiece.Success ? float.Parse(altitudePiece.Value) : 0;
+                location.Y = altitudePiece.Success ? float.Parse(GetValueForCoordinatePiece(altitudePiece.Value)) : 0;
                 location.Yaw = yawPiece.Success ? float.Parse(yawPiece.Value) : 0;
 
                 result = location;

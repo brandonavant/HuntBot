@@ -26,6 +26,11 @@ namespace HuntBot.Infrastructure.Database.Sqlite
         public const string CreateHuntBotGamesTableIfNotExists = "CREATE TABLE IF NOT EXISTS HuntBotGames (Id TEXT NOT NULL PRIMARY KEY, StoredEvents BLOB)";
 
         /// <summary>
+        /// Creates the JsonStore table in the database.
+        /// </summary>
+        public const string CreateJsonStoreTableIfNotExists = "CREATE TABLE IF NOT EXISTS JsonStore (Key TEXT NOT NULL PRIMARY KEY, Value BLOB)";
+
+        /// <summary>
         /// Gets a collection of all of the aggregate ids.
         /// </summary>
         public const string GetAggregateIds = "SELECT Id FROM HuntBotGames";
