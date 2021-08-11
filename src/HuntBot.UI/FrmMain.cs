@@ -49,23 +49,51 @@ namespace HuntBot.App
         }
 
         /// <summary>2
-        /// Event which fires upload loading an instance of <see cref="FrmMain"/>.
+        /// Event handler which fires upload loading an instance of <see cref="FrmMain"/>.
         /// </summary>
         /// <param name="sender">The construct that raised the Load event.</param>
         /// <param name="e">Encapsulates arguments passed into the Load event.</param>
         private async void FrmMain_Load(object sender, EventArgs e)
         {
-            Location location;
-            Domain.HuntBotGames.HuntBotLocation.Location.TryParseLocation("Droog 0n 0w 0a 0", out location);
+            try
+            {
+                //await _mediator.Send(new SaveHuntBotConfigurationCommand(
+                //    new HuntBotConfig
+                //    {
+                //        CitizenNumber = 339566,
+                //        Location = location,
+                //        PrivilegePassword = "ThisIsAPassword"
+                //    })
+                //);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Unable to load configuration file.", ex);
+            }
+        }
 
-            await _mediator.Send(new SaveHuntBotConfigurationCommand(
-                new HuntBotConfig
-                {
-                    CitizenNumber = 339566,
-                    Location = location,
-                    PrivilegePassword = "ThisIsAPassword"
-                })
-            );
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RtbSay_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(rtbSay.Text))
+            {
+                _aw.SayChannel(ChatChannels.Global, rtbSay.Text);
+            }
+        }
+
+        /// <summary>
+        /// Handles the button click event for <see cref="btnLogin"/>, which initiates
+        /// the login process for the given credentials and location.
+        /// </summary>
+        /// <param name="sender">The object from which the event originated.</param>
+        /// <param name="e">Encapsulates event data.</param>
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
