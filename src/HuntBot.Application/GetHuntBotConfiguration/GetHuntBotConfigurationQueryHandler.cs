@@ -9,16 +9,18 @@ using System.Threading.Tasks;
 
 namespace HuntBot.Application.GetHuntBotConfiguration
 {
-    public class GetHuntBotConfigurationQueryHandler : IRequestHandler<GetHuntBotConfigurationQuery>
+    public class GetHuntBotConfigurationQueryHandler : IRequestHandler<GetHuntBotConfigurationQuery, HuntBotConfig>
     {
+        private readonly IHuntBotConfigRepository _huntBotConfigRepository;
 
-        public GetHuntBotConfigurationQueryHandler()
+        public GetHuntBotConfigurationQueryHandler(IHuntBotConfigRepository huntBotConfigRepository)
         {
+            _huntBotConfigRepository = huntBotConfigRepository;
         }
 
-        public Task<Unit> Handle(GetHuntBotConfigurationQuery request, CancellationToken cancellationToken)
+        public async Task<HuntBotConfig> Handle(GetHuntBotConfigurationQuery request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return await _huntBotConfigRepository.LoadSettings();
         }
     }
 }

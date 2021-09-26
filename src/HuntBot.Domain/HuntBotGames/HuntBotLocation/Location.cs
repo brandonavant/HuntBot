@@ -32,6 +32,11 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotLocation
         public float Yaw { get; set; } = 0;
 
         /// <summary>
+        /// The <see cref="Location"/> object represented as a one-line value.
+        /// </summary>
+        public string Value { get; set; }
+
+        /// <summary>
         /// Enumeration for pulling a specified group from the Location regex match's groups collection.
         /// </summary>
         private enum LocationRegexGroupIndex
@@ -79,6 +84,7 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotLocation
                 location.X = float.Parse(GetValueForCoordinatePiece(ewPiece.Value));
                 location.Y = altitudePiece.Success ? float.Parse(GetValueForCoordinatePiece(altitudePiece.Value)) : 0;
                 location.Yaw = yawPiece.Success ? float.Parse(yawPiece.Value) : 0;
+                location.Value = value;
 
                 result = location;
             }
@@ -88,6 +94,15 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotLocation
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Override that ensures that the <see cref="Location"/> is serialized to string correctly.
+        /// </summary>
+        /// <returns>A string value representing the location.</returns>
+        public override string ToString()
+        {
+            return this.Value;
         }
 
         /// <summary>

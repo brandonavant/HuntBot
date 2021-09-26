@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿using HuntBot.Domain.HuntBotGames.HuntBotConfiguration;
+using MediatR;
 
 namespace HuntBot.Application.GetHuntBotConfiguration
 {
-    public class GetHuntBotConfigurationQuery : IRequest
+    public class GetHuntBotConfigurationQuery : IRequest<HuntBotConfig>
     {
         public GetHuntBotConfigurationQuery()
         {

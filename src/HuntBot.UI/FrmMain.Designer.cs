@@ -61,6 +61,7 @@
             this.txtGameLocation = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.btnSave = new System.Windows.Forms.Button();
             this.groupBox3.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -290,6 +291,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.btnSave);
             this.splitContainer1.Panel1.Controls.Add(this.btnLogin);
             this.splitContainer1.Panel1.Controls.Add(this.groupBox4);
             this.splitContainer1.Panel1.Controls.Add(this.groupBox2);
@@ -304,7 +306,7 @@
             // 
             // btnLogin
             // 
-            this.btnLogin.Location = new System.Drawing.Point(183, 410);
+            this.btnLogin.Location = new System.Drawing.Point(107, 410);
             this.btnLogin.Name = "btnLogin";
             this.btnLogin.Size = new System.Drawing.Size(75, 23);
             this.btnLogin.TabIndex = 3;
@@ -371,6 +373,16 @@
             this.label6.Size = new System.Drawing.Size(0, 15);
             this.label6.TabIndex = 0;
             // 
+            // btnSave
+            // 
+            this.btnSave.Location = new System.Drawing.Point(188, 410);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(75, 23);
+            this.btnSave.TabIndex = 4;
+            this.btnSave.Text = "Save";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -431,6 +443,7 @@
         private System.Windows.Forms.TextBox txtGameLocation;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button btnLogin;
+        private System.Windows.Forms.Button btnSave;
     }
 }
 

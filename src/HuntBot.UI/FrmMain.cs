@@ -1,4 +1,5 @@
 ﻿using AW;
+using HuntBot.Application.GetHuntBotConfiguration;
 using HuntBot.Application.SaveHuntBotConfiguration;
 using HuntBot.Domain.HuntBotGames.HuntBotConfiguration;
 using HuntBot.Domain.HuntBotGames.HuntBotLocation;
@@ -48,7 +49,7 @@ namespace HuntBot.App
             }
         }
 
-        /// <summary>2
+        /// <summary>
         /// Event handler which fires upload loading an instance of <see cref="FrmMain"/>.
         /// </summary>
         /// <param name="sender">The construct that raised the Load event.</param>
@@ -57,14 +58,11 @@ namespace HuntBot.App
         {
             try
             {
-                //await _mediator.Send(new SaveHuntBotConfigurationCommand(
-                //    new HuntBotConfig
-                //    {
-                //        CitizenNumber = 339566,
-                //        Location = location,
-                //        PrivilegePassword = "ThisIsAPassword"
-                //    })
-                //);
+                var configuration = await _mediator.Send(new GetHuntBotConfigurationQuery());
+
+                txtCitizenNumber.Text = configuration.CitizenNumber.ToString();
+                txtPrivilegePassword.Text = configuration.PrivilegePassword;
+                txtGameLocation.Text = configuration.Location.ToString();
             }
             catch (Exception ex)
             {
@@ -94,6 +92,29 @@ namespace HuntBot.App
         private void btnLogin_Click(object sender, EventArgs e)
         {
 
+        }
+
+        /// <summary>
+        /// Handles the button click event for <see cref="btnSave"/>, which initiates
+        /// the process to save the current state of the configuration fields.
+        /// </summary>
+        /// <param name="sender">The object from which the event originated.</param>
+        /// <param name="e">Encapsulates event data.</param>
+        private async void btnSave_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!int.TryParse(txtCitizenNumber.Text, out var citizenNumber))
+                {
+                    throw new ArgumentException("You must enter a valid citizen number.");
+                }
+
+                await _mediator.Send(new SaveHuntBotConfigurationCommand(citizenNumber, txtPrivilegePassword.Text, txtGameLocation.Text));
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Failed to save HuntBot configuration.");
+            }
         }
     }
 }

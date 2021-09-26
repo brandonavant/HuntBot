@@ -1,4 +1,5 @@
 ﻿using HuntBot.Domain.HuntBotGames.HuntBotLocation;
+using Newtonsoft.Json;
 using System;
 
 namespace HuntBot.Domain.HuntBotGames.HuntBotConfiguration
@@ -8,24 +9,25 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotConfiguration
     /// </summary>
     public record HuntBotConfig
     {
-        /// <summary>
+        /// <summary>a
         /// The citizen number with which instances are created.
         /// </summary>
-        public int CitizenNumber { get; private set; }
+        public int CitizenNumber { get; }
 
         /// <summary>
         /// The citizen number's privilege password.
-        /// </summary>
-        public string PrivilegePassword { get; private set; }
+        /// </summary
+        public string PrivilegePassword { get; }
 
         /// <summary>
         /// The world location to which the instance will be created.
         /// </summary>
-        public Location Location { get; private set; }
+        public Location Location { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HuntBotConfig"/> class.
         /// </summary>
+        [JsonConstructor]
         private HuntBotConfig(int citizenNumber, string privilegePassword, Location location)
         {
             CitizenNumber = citizenNumber;
@@ -40,7 +42,7 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotConfiguration
         /// <param name="privilegePassword">The privilege passwrod for the given citizen number.</param>
         /// <param name="location">The world and physical location where the bot will appear once logged in.</param>
         /// <returns></returns>
-        public HuntBotConfig CreateHuntBotConfig(int citizenNumber, string privilegePassword, string location)
+        public static HuntBotConfig CreateHuntBotConfig(int citizenNumber, string privilegePassword, string location)
         {
             if (citizenNumber == 0 || string.IsNullOrEmpty(privilegePassword))
             {
