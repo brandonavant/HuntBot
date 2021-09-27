@@ -1,4 +1,6 @@
 ﻿using HuntBot.Domain.HuntBotGames.HuntBotLocation;
+using HuntBot.Domain.HuntBotGames.Rules;
+using HuntBot.Domain.SeedWork;
 using Newtonsoft.Json;
 using System;
 
@@ -9,6 +11,16 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotConfiguration
     /// </summary>
     public record HuntBotConfig
     {
+        /// <summary>
+        /// The AW Universe server host.
+        /// </summary>
+        public string Host { get; }
+
+        /// <summary>
+        /// The AW Universe server port.
+        /// </summary>
+        public int Port { get; }
+
         /// <summary>a
         /// The citizen number with which instances are created.
         /// </summary>
@@ -20,6 +32,11 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotConfiguration
         public string PrivilegePassword { get; }
 
         /// <summary>
+        /// The name to associate with HuntBot game session and its data.
+        /// </summary>
+        public string GameName { get; set; }
+
+        /// <summary>
         /// The world location to which the instance will be created.
         /// </summary>
         public Location Location { get; }
@@ -28,10 +45,19 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotConfiguration
         /// Initializes a new instance of the <see cref="HuntBotConfig"/> class.
         /// </summary>
         [JsonConstructor]
-        private HuntBotConfig(int citizenNumber, string privilegePassword, Location location)
+        private HuntBotConfig(
+            string host,
+            int port,
+            int citizenNumber,
+            string privilegePassword,
+            string gameName,
+            Location location)
         {
+            Host = host;
+            Port = port;
             CitizenNumber = citizenNumber;
             PrivilegePassword = privilegePassword;
+            GameName = gameName;
             Location = location;
         }
 
@@ -42,19 +68,39 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotConfiguration
         /// <param name="privilegePassword">The privilege passwrod for the given citizen number.</param>
         /// <param name="location">The world and physical location where the bot will appear once logged in.</param>
         /// <returns></returns>
-        public static HuntBotConfig CreateHuntBotConfig(int citizenNumber, string privilegePassword, string location)
+        public static HuntBotConfig CreateHuntBotConfig(
+            string host,
+            int port,
+            int citizenNumber, 
+            string privilegePassword,
+            string gameName,
+            string location
+        )
         {
-            if (citizenNumber == 0 || string.IsNullOrEmpty(privilegePassword))
-            {
-                throw new ArgumentException("You must provide a citizen number and privilege password.");
-            }
+            CheckRule(new HuntBotConfigurationHasAllValuesRule(citizenNumber, privilegePassword, gameName, location));
 
-            if (!Location.TryParseLocation(location, out Location parsedLocation))
-            {
-                throw new LocationParseException("Invalid Location string.");
-            }
+            _ = Location.TryParseLocation(location, out Location parsedLocation);
 
-            return new HuntBotConfig(citizenNumber, privilegePassword, parsedLocation);
+            return new HuntBotConfig(
+                host,
+                port,                
+                citizenNumber, 
+                privilegePassword, 
+                gameName,
+                parsedLocation
+            );
+        }
+
+        /// <summary>
+        /// Provides aggregate validation by ensuring that the <see cref="IBusinessRule"/> is not broken.
+        /// </summary>
+        /// <param name="rule"><The <see cref="IBusinessRule"/> whose validity is checked./param>
+        protected static void CheckRule(IBusinessRule rule)
+        {
+            if (rule.IsBroken())
+            {
+                throw new BusinessRuleValidationException(rule);
+            }
         }
     }
 }

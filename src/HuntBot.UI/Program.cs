@@ -1,14 +1,13 @@
 using HuntBot.Application;
+using HuntBot.Domain.HuntBotGames.GameState;
+using HuntBot.Domain.HuntBotGamesGameState;
 using HuntBot.Infrastructure;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Collections.Concurrent;
 using System.Windows.Forms;
 
 namespace HuntBot.App
@@ -50,6 +49,12 @@ namespace HuntBot.App
         {
             var environmentName = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
 
+            // ConcurrentDictionary provide a global state across multiple threads with which
+            // processes can check the state of a running HuntBot game session.
+            var gameStateLookup = new GameStateLookup();
+
+            gameStateLookup.TryAdd(GameStateLookupKeys.GameStatus, GameStatus.PendingLogin);
+
             return Host.CreateDefaultBuilder()
                 .ConfigureServices((hostContext, services) =>
                 {
@@ -68,6 +73,7 @@ namespace HuntBot.App
                     services.AddApplicationDependencies();
                     services.AddInfrastructureDependencies();
                     services.AddScoped<FrmMain>();
+                    services.AddSingleton(gameStateLookup);
                 });
         }
     }

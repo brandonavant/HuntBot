@@ -29,7 +29,15 @@ namespace HuntBot.Application.SaveHuntBotConfiguration
         /// <param name="cancellationToken">The signal with which the operation is cancelled.</param>
         public async Task<Unit> Handle(SaveHuntBotConfigurationCommand request, CancellationToken cancellationToken)
         {
-            var huntbotConfig = HuntBotConfig.CreateHuntBotConfig(request.CitizenNumber, request.PrivilegePassword, request.Location);
+            var huntbotConfig = HuntBotConfig.CreateHuntBotConfig(
+                request.Host, 
+                request.Port, 
+                request.CitizenNumber, 
+                request.PrivilegePassword,
+                request.GameName,
+                request.Location
+            );
+
             var saveResult = await _huntBotConfigRepository.SaveSettings(huntbotConfig);
 
             if (!saveResult)

@@ -1,12 +1,11 @@
 ﻿using AW;
 using HuntBot.Application.GetHuntBotConfiguration;
 using HuntBot.Application.SaveHuntBotConfiguration;
-using HuntBot.Domain.HuntBotGames.HuntBotConfiguration;
-using HuntBot.Domain.HuntBotGames.HuntBotLocation;
+using HuntBot.Domain.HuntBotGames.GameState;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Threading.Tasks;
+using System.Collections.Concurrent;
 using System.Windows.Forms;
 
 namespace HuntBot.App
@@ -29,17 +28,23 @@ namespace HuntBot.App
         private readonly ILogger<FrmMain> _logger;
 
         /// <summary>
+        /// ConcurrentDictionary whcih provides a global state across multiple threads with which processes can check the state of a running HuntBot game session.
+        /// </summary>
+        private readonly GameStateLookup _gameStateLookup;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="FrmMain"/> class.
         /// </summary>
         /// <param name="mediator">Mediator with which commands and query requests and dispatched.</param>
         /// <param name="logger">Used to log information and errors to the configured logging sink.</param>
-        public FrmMain(IMediator mediator, ILogger<FrmMain> logger)
+        public FrmMain(IMediator mediator, ILogger<FrmMain> logger, GameStateLookup gameStateLookup)
         {
             try
             {
                 _mediator = mediator;
                 _logger = logger;
                 _aw = new Instance();
+                _gameStateLookup = gameStateLookup;
 
                 InitializeComponent();
             }
@@ -47,6 +52,8 @@ namespace HuntBot.App
             {
                 _logger.LogCritical(ex, "An unexpected exception occurred while attempting to initialize FrmMain.");
             }
+
+            _gameStateLookup = gameStateLookup;
         }
 
         /// <summary>
@@ -60,9 +67,13 @@ namespace HuntBot.App
             {
                 var configuration = await _mediator.Send(new GetHuntBotConfigurationQuery());
 
+                txtHost.Text = configuration.Host;
+                txtPort.Text = configuration.Port.ToString();
                 txtCitizenNumber.Text = configuration.CitizenNumber.ToString();
                 txtPrivilegePassword.Text = configuration.PrivilegePassword;
+                txtGameName.Text = configuration.GameName;
                 txtGameLocation.Text = configuration.Location.ToString();
+
             }
             catch (Exception ex)
             {
@@ -109,7 +120,14 @@ namespace HuntBot.App
                     throw new ArgumentException("You must enter a valid citizen number.");
                 }
 
-                await _mediator.Send(new SaveHuntBotConfigurationCommand(citizenNumber, txtPrivilegePassword.Text, txtGameLocation.Text));
+                if (!int.TryParse(txtPort.Text, out int port))
+                {
+                    throw new ArgumentException("You must enter ");
+                }
+
+                await _mediator.Send(new SaveHuntBotConfigurationCommand(txtHost.Text, port, citizenNumber, txtPrivilegePassword.Text, txtGameName.Text, txtGameLocation.Text));
+
+                MessageBox.Show("Save Successful!");
             }
             catch(Exception ex)
             {
