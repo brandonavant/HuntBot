@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Sinks.WinForms;
 using System;
 using System.Collections.Concurrent;
 using System.Windows.Forms;
@@ -51,7 +52,7 @@ namespace HuntBot.App
 
             // ConcurrentDictionary provide a global state across multiple threads with which
             // processes can check the state of a running HuntBot game session.
-            var gameStateLookup = new GameStateLookup();
+            var gameStateLookup = new BotStateLookup();
 
             gameStateLookup.TryAdd(GameStateLookupKeys.GameStatus, GameStatus.PendingLogin);
 
@@ -61,6 +62,7 @@ namespace HuntBot.App
                     // Middleware
                     var serilogLogger = new LoggerConfiguration()
                         .WriteTo.File("HuntBot.log")
+                        .WriteToGridView()
                         .CreateLogger();
 
                     services.AddLogging(loggingConfig =>

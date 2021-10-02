@@ -33,7 +33,7 @@ namespace HuntBot.App
         /// <summary>
         /// ConcurrentDictionary whcih provides a global state across multiple threads with which processes can check the state of a running HuntBot game session.
         /// </summary>
-        private readonly GameStateLookup _gameStateLookup;
+        private readonly BotStateLookup _gameStateLookup;
 
         /// <summary>
         /// The phsyical location at which the bot will appear once logged in.
@@ -45,7 +45,7 @@ namespace HuntBot.App
         /// </summary>
         /// <param name="mediator">Mediator with which commands and query requests and dispatched.</param>
         /// <param name="logger">Used to log information and errors to the configured logging sink.</param>
-        public FrmMain(IMediator mediator, ILogger<FrmMain> logger, GameStateLookup gameStateLookup)
+        public FrmMain(IMediator mediator, ILogger<FrmMain> logger, BotStateLookup gameStateLookup)
         {
             try
             {
@@ -75,6 +75,7 @@ namespace HuntBot.App
         {
             try
             {
+                _logger.LogInformation("Testing Un, Duex, Trois...");
                 _huntbotConfiguration = await _mediator.Send(new GetHuntBotConfigurationQuery());
 
                 if (_huntbotConfiguration != null)
