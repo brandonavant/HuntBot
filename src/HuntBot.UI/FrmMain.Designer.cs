@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -64,6 +65,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.gridLog1 = new Serilog.Sinks.WinForms.GridLog();
+            this.awTimer = new System.Windows.Forms.Timer(this.components);
             this.groupBox3.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -154,7 +156,7 @@
             this.groupBox3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.groupBox3.Location = new System.Drawing.Point(3, 6);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(448, 374);
+            this.groupBox3.Size = new System.Drawing.Size(584, 374);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Chat";
@@ -173,9 +175,11 @@
             // rtbSay
             // 
             this.rtbSay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.rtbSay.Enabled = false;
             this.rtbSay.Location = new System.Drawing.Point(38, 340);
+            this.rtbSay.Multiline = false;
             this.rtbSay.Name = "rtbSay";
-            this.rtbSay.Size = new System.Drawing.Size(403, 25);
+            this.rtbSay.Size = new System.Drawing.Size(539, 25);
             this.rtbSay.TabIndex = 1;
             this.rtbSay.Text = "";
             // 
@@ -183,9 +187,10 @@
             // 
             this.rtbChat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.rtbChat.Enabled = false;
             this.rtbChat.Location = new System.Drawing.Point(4, 19);
             this.rtbChat.Name = "rtbChat";
-            this.rtbChat.Size = new System.Drawing.Size(437, 315);
+            this.rtbChat.Size = new System.Drawing.Size(573, 315);
             this.rtbChat.TabIndex = 0;
             this.rtbChat.Text = "";
             // 
@@ -288,6 +293,7 @@
             // 
             // splitContainer1
             // 
+            this.splitContainer1.Cursor = System.Windows.Forms.Cursors.VSplit;
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
             this.splitContainer1.Name = "splitContainer1";
@@ -304,8 +310,8 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.groupBox5);
             this.splitContainer1.Panel2.Controls.Add(this.groupBox3);
-            this.splitContainer1.Size = new System.Drawing.Size(800, 525);
-            this.splitContainer1.SplitterDistance = 333;
+            this.splitContainer1.Size = new System.Drawing.Size(1032, 525);
+            this.splitContainer1.SplitterDistance = 429;
             this.splitContainer1.TabIndex = 0;
             // 
             // btnSave
@@ -396,7 +402,7 @@
             this.groupBox5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.groupBox5.Location = new System.Drawing.Point(3, 386);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(448, 127);
+            this.groupBox5.Size = new System.Drawing.Size(584, 127);
             this.groupBox5.TabIndex = 1;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Logs";
@@ -409,16 +415,21 @@
             this.gridLog1.Location = new System.Drawing.Point(4, 24);
             this.gridLog1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.gridLog1.Name = "gridLog1";
-            this.gridLog1.Size = new System.Drawing.Size(437, 97);
+            this.gridLog1.Size = new System.Drawing.Size(573, 97);
             this.gridLog1.TabIndex = 0;
+            // 
+            // awTimer
+            // 
+            this.awTimer.Tick += new System.EventHandler(this.awTimer_Tick);
             // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(800, 525);
+            this.ClientSize = new System.Drawing.Size(1032, 525);
             this.Controls.Add(this.splitContainer1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FrmMain";
             this.Text = "HuntBot";
             this.Load += new System.EventHandler(this.FrmMain_Load);
@@ -476,6 +487,7 @@
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.GroupBox groupBox5;
         private Serilog.Sinks.WinForms.GridLog gridLog1;
+        private System.Windows.Forms.Timer awTimer;
     }
 }
 

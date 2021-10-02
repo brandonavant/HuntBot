@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Sinks.WinForms;
 using System;
-using System.Collections.Concurrent;
 using System.Windows.Forms;
 
 namespace HuntBot.App
@@ -38,7 +37,7 @@ namespace HuntBot.App
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Unable to create service scope in Main.");
+                Log.Logger.Error(ex, "Unable to start main form.");
             }
         }
 
@@ -52,7 +51,7 @@ namespace HuntBot.App
 
             // ConcurrentDictionary provide a global state across multiple threads with which
             // processes can check the state of a running HuntBot game session.
-            var gameStateLookup = new BotStateLookup();
+            var gameStateLookup = new GameStateLookup();
 
             gameStateLookup.TryAdd(GameStateLookupKeys.GameStatus, GameStatus.PendingLogin);
 

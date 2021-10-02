@@ -11,15 +11,15 @@ namespace HuntBot.UI.Workers
     /// <summary>
     /// Background worker tasked with logging in an instance into AW.
     /// </summary>
-    internal sealed class LoginWorker
+    internal sealed class HuntBotWorker
     {
-        private readonly BotStateLookup _botStateLookup;
-        private readonly IInstance _awInstance;
+        private readonly GameStateLookup _botStateLookup;
+        private readonly IInstance _aw;
 
-        public LoginWorker(BotStateLookup botStateLookup, IInstance awInstance)
+        public HuntBotWorker(GameStateLookup botStateLookup)
         {
             _botStateLookup = botStateLookup;
-            _awInstance = awInstance;
+            _aw = new Instance();
         }
     }
 }

@@ -33,7 +33,7 @@ namespace HuntBot.App
         /// <summary>
         /// ConcurrentDictionary whcih provides a global state across multiple threads with which processes can check the state of a running HuntBot game session.
         /// </summary>
-        private readonly BotStateLookup _gameStateLookup;
+        private readonly GameStateLookup _gameStateLookup;
 
         /// <summary>
         /// The phsyical location at which the bot will appear once logged in.
@@ -41,11 +41,17 @@ namespace HuntBot.App
         private HuntBotConfig _huntbotConfiguration;
 
         /// <summary>
+        /// The name that the bot will used once it appears in the world.
+        /// </summary>
+
+        private string _loginName = "HuntBot";
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="FrmMain"/> class.
         /// </summary>
         /// <param name="mediator">Mediator with which commands and query requests and dispatched.</param>
         /// <param name="logger">Used to log information and errors to the configured logging sink.</param>
-        public FrmMain(IMediator mediator, ILogger<FrmMain> logger, BotStateLookup gameStateLookup)
+        public FrmMain(IMediator mediator, ILogger<FrmMain> logger, GameStateLookup gameStateLookup)
         {
             try
             {
@@ -54,9 +60,12 @@ namespace HuntBot.App
                 _aw = new Instance();
                 _gameStateLookup = gameStateLookup;
 
+
                 InitializeComponent();
-                //WireUpEventHandlers();
+                WireUpEventHandlers();
                 WireUpCallbacks();
+                
+                this.rtbSay.KeyDown += RtbSay_KeyDown;
             }
             catch(Exception ex)
             {
@@ -75,7 +84,6 @@ namespace HuntBot.App
         {
             try
             {
-                _logger.LogInformation("Testing Un, Duex, Trois...");
                 _huntbotConfiguration = await _mediator.Send(new GetHuntBotConfigurationQuery());
 
                 if (_huntbotConfiguration != null)
@@ -91,10 +99,7 @@ namespace HuntBot.App
             }
             catch (Exception ex)
             {
-                var errorMessage = "Unable to load configuration file.";
-
-                rtbChat.AppendText(errorMessage);
-                _logger.LogError(errorMessage, ex);
+                _logger.LogError(ex, "Failed to load configuration.");
             }
         }
 
@@ -112,7 +117,29 @@ namespace HuntBot.App
         /// </summary>
         private void WireUpEventHandlers()
         {
-            throw new NotImplementedException();
+            _aw.EventAvatarAdd += EventAvatarAdd;
+            _aw.EventAvatarDelete += EventAvatarDelete;
+            _aw.EventChat += EventChat;
+        }
+
+        private void EventAvatarDelete(IInstance sender)
+        {
+            var avatarName = _aw.Attributes.AvatarName;
+            _logger.LogInformation($"{avatarName} has left.");
+        }
+
+        private void EventChat(IInstance sender)
+        { 
+            var speaker = _aw.Attributes.AvatarName;
+            var message = _aw.Attributes.ChatMessage;
+
+            DisplayChatMessage(speaker, message);
+        }
+
+        private void EventAvatarAdd(IInstance sender)
+        {
+            var avatarName = _aw.Attributes.AvatarName;
+            _logger.LogInformation($"{avatarName} has entered.");
         }
 
         /// <summary>
@@ -124,7 +151,12 @@ namespace HuntBot.App
         {
             if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(rtbSay.Text))
             {
-                _aw.SayChannel(ChatChannels.Global, rtbSay.Text);
+                var message = rtbSay.Text;
+
+                _aw.SayChannel(ChatChannels.Global, message);
+                DisplayChatMessage(_loginName, message);
+
+                rtbSay.Text = String.Empty;
             }
         }
 
@@ -143,16 +175,13 @@ namespace HuntBot.App
                 _aw.Attributes.LoginOwner = configuration.CitizenNumber;
                 _aw.Attributes.LoginPrivilegePassword = configuration.PrivilegePassword;
                 _aw.Attributes.LoginApplication = this.ProductName;
-                _aw.Attributes.LoginName = "Huntbot";
+                _aw.Attributes.LoginName = _loginName;
 
                 var result = _aw.Login();
-
-                while (Utility.Wait(-1) != ReasonCode.Success);
+                awTimer.Start();
             }
             catch (Exception ex) 
             {
-                // TODO: Clean this up.
-                rtbChat.AppendText(ex.Message);
                 _logger.LogError(ex, ex.Message); 
             }
         }
@@ -174,8 +203,17 @@ namespace HuntBot.App
             catch(Exception ex)
             {
                 _logger.LogError(ex, "Failed to save HuntBot configuration.");
-                rtbChat.AppendText("Failed to save.");
             }
+        }
+
+        /// <summary>
+        /// Displays a givern chat message in the <see cref="rtbChat"/> chat box.
+        /// </summary>
+        /// <param name="speaker">The message speaker.</param>
+        /// <param name="message">The message to display.</param>
+        private void DisplayChatMessage(string speaker, string message)
+        {
+            rtbChat.AppendText($"{speaker}:\t{message}{Environment.NewLine}");
         }
 
         private async Task<HuntBotConfig> SaveConfiguration()
@@ -204,7 +242,6 @@ namespace HuntBot.App
             {
                 var errorMessage = $"Failed to login (reason {reasonCode})";
 
-                rtbChat.AppendText(errorMessage);
                 _logger.LogError(errorMessage);
             }
 
@@ -225,7 +262,7 @@ namespace HuntBot.App
                 throw new Exception($"Failed to enter {_huntbotConfiguration.Location.World} (reason {reasonCode})");
             }
 
-            rtbChat.AppendText($"Successfully entered world {_huntbotConfiguration.Location.World}!");
+            _logger.LogInformation($"Successfully entered world {_huntbotConfiguration.Location.World}!");
 
             _aw.Attributes.MyX = _huntbotConfiguration.Location.X;
             _aw.Attributes.MyY = _huntbotConfiguration.Location.Y;
@@ -237,6 +274,20 @@ namespace HuntBot.App
             {
                 throw new Exception($"Failed to change state (reason {stateChangeReasonCode})");
             }
+
+            rtbSay.Enabled = true;
+            rtbChat.Enabled = true;
+        }
+
+        /// <summary>
+        /// Timer which triggers the SDK process which processes all queued packets and waits the 
+        /// specified time for more to arrive, calling callback and event handlers.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void awTimer_Tick(object sender, EventArgs e)
+        {
+            Utility.Wait(0);
         }
     }
 }
