@@ -3,7 +3,7 @@ using MediatR;
 
 namespace HuntBot.Application.SaveHuntBotConfiguration
 {
-    public class SaveHuntBotConfigurationCommand : IRequest<Unit>
+    public class SaveHuntBotConfigurationCommand : IRequest<HuntBotConfig>
     {
         /// <summary>
         /// The AW Universe server host.

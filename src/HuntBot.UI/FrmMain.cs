@@ -2,11 +2,14 @@
 using HuntBot.Application.GetHuntBotConfiguration;
 using HuntBot.Application.SaveHuntBotConfiguration;
 using HuntBot.Domain.HuntBotGames.GameState;
+using HuntBot.Domain.HuntBotGames.HuntBotConfiguration;
+using HuntBot.Domain.HuntBotGames.HuntBotLocation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using HuntBotLocation = HuntBot.Domain.HuntBotGames.HuntBotLocation.Location;
 
 namespace HuntBot.App
 {
@@ -33,6 +36,11 @@ namespace HuntBot.App
         private readonly GameStateLookup _gameStateLookup;
 
         /// <summary>
+        /// The phsyical location at which the bot will appear once logged in.
+        /// </summary>
+        private HuntBotConfig _huntbotConfiguration;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="FrmMain"/> class.
         /// </summary>
         /// <param name="mediator">Mediator with which commands and query requests and dispatched.</param>
@@ -47,6 +55,8 @@ namespace HuntBot.App
                 _gameStateLookup = gameStateLookup;
 
                 InitializeComponent();
+                //WireUpEventHandlers();
+                WireUpCallbacks();
             }
             catch(Exception ex)
             {
@@ -65,20 +75,43 @@ namespace HuntBot.App
         {
             try
             {
-                var configuration = await _mediator.Send(new GetHuntBotConfigurationQuery());
+                _huntbotConfiguration = await _mediator.Send(new GetHuntBotConfigurationQuery());
 
-                txtHost.Text = configuration.Host;
-                txtPort.Text = configuration.Port.ToString();
-                txtCitizenNumber.Text = configuration.CitizenNumber.ToString();
-                txtPrivilegePassword.Text = configuration.PrivilegePassword;
-                txtGameName.Text = configuration.GameName;
-                txtGameLocation.Text = configuration.Location.ToString();
+                if (_huntbotConfiguration != null)
+                {
+                    txtHost.Text = _huntbotConfiguration.Host;
+                    txtPort.Text = _huntbotConfiguration.Port.ToString();
+                    txtCitizenNumber.Text = _huntbotConfiguration.CitizenNumber.ToString();
+                    txtPrivilegePassword.Text = _huntbotConfiguration.PrivilegePassword;
+                    txtGameName.Text = _huntbotConfiguration.GameName;
+                    txtGameLocation.Text = _huntbotConfiguration.Location.ToString();
+                }
 
             }
             catch (Exception ex)
             {
-                _logger.LogError("Unable to load configuration file.", ex);
+                var errorMessage = "Unable to load configuration file.";
+
+                rtbChat.AppendText(errorMessage);
+                _logger.LogError(errorMessage, ex);
             }
+        }
+
+        /// <summary>
+        /// Wires up all <see cref="AW.AW_EVENT"/> event handlers.
+        /// </summary>
+        private void WireUpCallbacks()
+        {
+            _aw.CallbackLogin += CallbackLogin;
+            _aw.CallbackEnter += CallbackEnter;
+        }
+
+        /// <summary>
+        /// Wires up all <see cref="AW.AW_CALLBACK"/> callback handlers.
+        /// </summary>
+        private void WireUpEventHandlers()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -100,9 +133,27 @@ namespace HuntBot.App
         /// </summary>
         /// <param name="sender">The object from which the event originated.</param>
         /// <param name="e">Encapsulates event data.</param>
-        private void btnLogin_Click(object sender, EventArgs e)
+        private async void btnLogin_Click(object sender, EventArgs e)
         {
+            try
+            {
+                var configuration = await SaveConfiguration();
 
+                _aw.Attributes.LoginOwner = configuration.CitizenNumber;
+                _aw.Attributes.LoginPrivilegePassword = configuration.PrivilegePassword;
+                _aw.Attributes.LoginApplication = this.ProductName;
+                _aw.Attributes.LoginName = "Huntbot";
+
+                var result = _aw.Login();
+
+                while (Utility.Wait(-1) != ReasonCode.Success);
+            }
+            catch (Exception ex) 
+            {
+                // TODO: Clean this up.
+                rtbChat.AppendText(ex.Message);
+                _logger.LogError(ex, ex.Message); 
+            }
         }
 
         /// <summary>
@@ -115,23 +166,75 @@ namespace HuntBot.App
         {
             try
             {
-                if (!int.TryParse(txtCitizenNumber.Text, out var citizenNumber))
-                {
-                    throw new ArgumentException("You must enter a valid citizen number.");
-                }
-
-                if (!int.TryParse(txtPort.Text, out int port))
-                {
-                    throw new ArgumentException("You must enter ");
-                }
-
-                await _mediator.Send(new SaveHuntBotConfigurationCommand(txtHost.Text, port, citizenNumber, txtPrivilegePassword.Text, txtGameName.Text, txtGameLocation.Text));
+                _huntbotConfiguration = await SaveConfiguration();
 
                 MessageBox.Show("Save Successful!");
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "Failed to save HuntBot configuration.");
+                rtbChat.AppendText("Failed to save.");
+            }
+        }
+
+        private async Task<HuntBotConfig> SaveConfiguration()
+        {
+            if (!int.TryParse(txtCitizenNumber.Text, out var citizenNumber))
+            {
+                throw new ArgumentException("You must enter a valid citizen number.");
+            }
+
+            if (!int.TryParse(txtPort.Text, out int port))
+            {
+                throw new ArgumentException("You must enter a valid port.");
+            }
+
+            return await _mediator.Send(new SaveHuntBotConfigurationCommand(txtHost.Text, port, citizenNumber, txtPrivilegePassword.Text, txtGameName.Text, txtGameLocation.Text));
+        }
+
+        /// <summary>
+        /// Callback handler which processes a <see cref="AW.AW_CALLBACK.AW_CALLBACK_LOGIN"/> callback.
+        /// </summary>
+        /// <param name="sender">The <see cref="AW.IInstance"/> instance which triggered the callback.</param>
+        /// <param name="reasonCode">The <see cref="AW.ReasonCode"/> result of the call to <see cref="AW.IInstance.Login"/>.</param>
+        private void CallbackLogin(IInstance sender, ReasonCode reasonCode)
+        {
+            if (reasonCode != ReasonCode.Success)
+            {
+                var errorMessage = $"Failed to login (reason {reasonCode})";
+
+                rtbChat.AppendText(errorMessage);
+                _logger.LogError(errorMessage);
+            }
+
+            _aw.Enter(_huntbotConfiguration.Location.World);
+        }
+
+        /// <summary>
+        /// Callback handler which prcoesses a <see cref="AW.AW_CALLBACK.AW_CALLBACK_ENTER"/> callback.
+        /// </summary>
+        /// <param name="sender">The <see cref="AW.IInstance"/> instance which triggered the callback.</param>
+        /// <param name="reasonCode">The <see cref="AW.ReasonCode"/> result of the call to <see cref="AW.IInstance.Enter()"/>.</param>
+        private void CallbackEnter(IInstance sender, ReasonCode reasonCode)
+        {
+            ReasonCode stateChangeReasonCode = ReasonCode.Success;
+
+            if (reasonCode != ReasonCode.Success)
+            {
+                throw new Exception($"Failed to enter {_huntbotConfiguration.Location.World} (reason {reasonCode})");
+            }
+
+            rtbChat.AppendText($"Successfully entered world {_huntbotConfiguration.Location.World}!");
+
+            _aw.Attributes.MyX = _huntbotConfiguration.Location.X;
+            _aw.Attributes.MyY = _huntbotConfiguration.Location.Y;
+            _aw.Attributes.MyZ = _huntbotConfiguration.Location.Z;
+            _aw.Attributes.MyYaw = _huntbotConfiguration.Location.Yaw;
+
+            stateChangeReasonCode = _aw.StateChange();
+            if (stateChangeReasonCode != ReasonCode.Success)
+            {
+                throw new Exception($"Failed to change state (reason {stateChangeReasonCode})");
             }
         }
     }

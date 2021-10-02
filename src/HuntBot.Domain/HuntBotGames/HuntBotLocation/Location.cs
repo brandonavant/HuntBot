@@ -14,22 +14,22 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotLocation
         /// <summary>
         /// The HuntBot instance's position (in centimeters) along the east/west axis, with west being positive.
         /// </summary>
-        public float X { get; set; }
+        public int X { get; set; }
 
         /// <summary>
         /// The HuntBot instance's altitude (in centimeters) above the ground, with negative being below ground.
         /// </summary>
-        public float Y { get; set; } = 0;
+        public int Y { get; set; } = 0;
 
         /// <summary>
         /// The HuntBot instance's position (in centimeters) along the north/south axis, with north being positive.
         /// </summary>
-        public float Z { get; set; }
+        public int Z { get; set; }
 
         /// <summary>
         /// The HuntBot instance's yaw, in tenth's of a degree (0 to 3599).
         /// </summary>
-        public float Yaw { get; set; } = 0;
+        public int Yaw { get; set; } = 0;
 
         /// <summary>
         /// The <see cref="Location"/> object represented as a one-line value.
@@ -80,10 +80,10 @@ namespace HuntBot.Domain.HuntBotGames.HuntBotLocation
 
                 // We don't technically need to do a TryParse, because the regex has taken care of that for us.
                 location.World = worldPiece.Value;
-                location.Z = float.Parse(GetValueForCoordinatePiece(nsPiece.Value));
-                location.X = float.Parse(GetValueForCoordinatePiece(ewPiece.Value));
-                location.Y = altitudePiece.Success ? float.Parse(GetValueForCoordinatePiece(altitudePiece.Value)) : 0;
-                location.Yaw = yawPiece.Success ? float.Parse(yawPiece.Value) : 0;
+                location.Z = int.Parse(GetValueForCoordinatePiece(nsPiece.Value));
+                location.X = int.Parse(GetValueForCoordinatePiece(ewPiece.Value));
+                location.Y = altitudePiece.Success ? int.Parse(GetValueForCoordinatePiece(altitudePiece.Value)) : 0;
+                location.Yaw = yawPiece.Success ? int.Parse(yawPiece.Value) : 0;
                 location.Value = value;
 
                 result = location;

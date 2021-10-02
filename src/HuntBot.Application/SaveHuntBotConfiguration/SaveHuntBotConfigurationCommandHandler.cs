@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HuntBot.Application.SaveHuntBotConfiguration
 {
-    public class SaveHuntBotConfigurationCommandHandler : IRequestHandler<SaveHuntBotConfigurationCommand, Unit>
+    public class SaveHuntBotConfigurationCommandHandler : IRequestHandler<SaveHuntBotConfigurationCommand, HuntBotConfig>
     {
         /// <summary>
         /// Repository with which the configuration values are saved to the persistence layer.
@@ -27,7 +27,7 @@ namespace HuntBot.Application.SaveHuntBotConfiguration
         /// </summary>
         /// <param name="request">The <see cref="SaveHuntBotConfigurationCommand"/> command which triggered this handler.</param>
         /// <param name="cancellationToken">The signal with which the operation is cancelled.</param>
-        public async Task<Unit> Handle(SaveHuntBotConfigurationCommand request, CancellationToken cancellationToken)
+        public async Task<HuntBotConfig> Handle(SaveHuntBotConfigurationCommand request, CancellationToken cancellationToken)
         {
             var huntbotConfig = HuntBotConfig.CreateHuntBotConfig(
                 request.Host, 
@@ -45,7 +45,7 @@ namespace HuntBot.Application.SaveHuntBotConfiguration
                 throw new Exception("Failed to save configuration.");
             }
                 
-            return Unit.Value;
+            return huntbotConfig;
         }
     }
 }
