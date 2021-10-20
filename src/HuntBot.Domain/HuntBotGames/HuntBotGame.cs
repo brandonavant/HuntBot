@@ -139,7 +139,7 @@ namespace HuntBot.Domain.HuntBotGames
         /// <param name="points">The number of points to be awarded by the find.</param>
         public void ParticipantFoundObject(int citizenNumber, int objectId, int points)
         {
-            var participant = GameParticipants.FirstOrDefault(p => p.Id == citizenNumber);
+            var participant = GameParticipants.SingleOrDefault(p => p.Id == citizenNumber);
             var findIds = participant.ObjectFinds.Select(of => of.ObjectId);
 
             CheckRule(new ParticipantIsRegisteredInGameRule(participant));

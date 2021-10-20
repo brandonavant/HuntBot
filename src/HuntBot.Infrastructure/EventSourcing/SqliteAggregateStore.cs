@@ -68,7 +68,7 @@ namespace HuntBot.Infrastructure.EventStore
             {
                 var aggregate = (T)Activator.CreateInstance(typeof(T), true);
                 var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Read);
-                var existingAggregateRecord = await connection.QueryFirstOrDefaultAsync<StoredAggregate>(
+                var existingAggregateRecord = await connection.QuerySingleOrDefaultAsync<StoredAggregate>(
                     SqlStatements.GetAggregateById, 
                     new 
                     { 
@@ -154,7 +154,7 @@ namespace HuntBot.Infrastructure.EventStore
             {
                 var connection = _sqliteConnectionFactory.GetConnection(SqliteConnectionMode.Write);
                 var nextVersion = 0;
-                var existingAggregateRecord = await connection.QueryFirstOrDefaultAsync<StoredAggregate>(
+                var existingAggregateRecord = await connection.QuerySingleOrDefaultAsync<StoredAggregate>(
                     SqlStatements.GetAggregateById, 
                     new 
                     { 

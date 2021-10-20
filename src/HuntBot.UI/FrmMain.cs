@@ -1,15 +1,17 @@
 ﻿using AW;
+using HuntBot.Application.CreateNewHuntBotGame;
 using HuntBot.Application.GetHuntBotConfiguration;
+using HuntBot.Application.GetHuntBotGames;
 using HuntBot.Application.SaveHuntBotConfiguration;
+using HuntBot.Domain.HuntBotGames;
 using HuntBot.Domain.HuntBotGames.GameState;
 using HuntBot.Domain.HuntBotGames.HuntBotConfiguration;
-using HuntBot.Domain.HuntBotGames.HuntBotLocation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using HuntBotLocation = HuntBot.Domain.HuntBotGames.HuntBotLocation.Location;
 
 namespace HuntBot.App
 {
@@ -45,6 +47,8 @@ namespace HuntBot.App
         /// </summary>
 
         private string _loginName = "HuntBot";
+
+        private HuntBotGame _huntBotGame;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FrmMain"/> class.
@@ -253,7 +257,7 @@ namespace HuntBot.App
         /// </summary>
         /// <param name="sender">The <see cref="AW.IInstance"/> instance which triggered the callback.</param>
         /// <param name="reasonCode">The <see cref="AW.ReasonCode"/> result of the call to <see cref="AW.IInstance.Enter()"/>.</param>
-        private void CallbackEnter(IInstance sender, ReasonCode reasonCode)
+        private async void CallbackEnter(IInstance sender, ReasonCode reasonCode)
         {
             ReasonCode stateChangeReasonCode = ReasonCode.Success;
 
@@ -277,6 +281,19 @@ namespace HuntBot.App
 
             rtbSay.Enabled = true;
             rtbChat.Enabled = true;
+
+            await this.StartHuntBotGame();
+        }
+
+        private async Task StartHuntBotGame()
+        {
+            var existingGames = await _mediator.Send(new GetHuntBotGamesQuery());
+            _huntBotGame = existingGames.Where(hbg => hbg.Title == _huntbotConfiguration.GameName).SingleOrDefault();
+
+            if (_huntBotGame is null)
+            {
+                _huntBotGame = await _mediator.Send(new CreateNewHuntBotGameCommand(_huntbotConfiguration.GameName, DateTime.UtcNow, DateTime.MaxValue));
+            }
         }
 
         /// <summary>
