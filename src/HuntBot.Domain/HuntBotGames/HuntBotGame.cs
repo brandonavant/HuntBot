@@ -94,6 +94,16 @@ namespace HuntBot.Domain.HuntBotGames
         }
 
         /// <summary>
+        /// Determines whether or not a <see cref="GameParticipant"/> record exists for the given citizen number.
+        /// </summary>
+        /// <param name="citizenNumber">The citizen number of the participant.</param>
+        /// <returns></returns>
+        public bool ParticipantExists(int citizenNumber)
+        {
+            return GameParticipants.Any(p => p.Id == citizenNumber);
+        }
+
+        /// <summary>
         /// Adds a participant to the <see cref="GameParticipants"/>.
         /// </summary>
         /// <param name="citizenNumber">The citizen number of the participant.</param>

@@ -2,6 +2,7 @@ using HuntBot.Application;
 using HuntBot.Domain.HuntBotGames.GameState;
 using HuntBot.Domain.HuntBotGamesGameState;
 using HuntBot.Infrastructure;
+using HuntBot.UI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

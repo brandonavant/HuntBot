@@ -2,21 +2,25 @@
 using HuntBot.Application.CreateNewHuntBotGame;
 using HuntBot.Application.GetHuntBotConfiguration;
 using HuntBot.Application.GetHuntBotGames;
+using HuntBot.Application.ParticipantFoundObject;
 using HuntBot.Application.SaveHuntBotConfiguration;
 using HuntBot.Domain.HuntBotGames;
 using HuntBot.Domain.HuntBotGames.GameState;
 using HuntBot.Domain.HuntBotGames.HuntBotConfiguration;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace HuntBot.App
+namespace HuntBot.UI
 {
     public partial class FrmMain : Form
     {
+        #region Private Fields
+
         /// <summary>
         /// Instance of the AW SDK.
         /// </summary>
@@ -48,7 +52,14 @@ namespace HuntBot.App
 
         private string _loginName = "HuntBot";
 
+        /// <summary>
+        /// The HuntBot game instance.
+        /// </summary>
         private HuntBotGame _huntBotGame;
+
+        #endregion
+
+        #region Initialization
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FrmMain"/> class.
@@ -64,14 +75,13 @@ namespace HuntBot.App
                 _aw = new Instance();
                 _gameStateLookup = gameStateLookup;
 
-
                 InitializeComponent();
                 WireUpEventHandlers();
                 WireUpCallbacks();
-                
+
                 this.rtbSay.KeyDown += RtbSay_KeyDown;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogCritical(ex, "An unexpected exception occurred while attempting to initialize FrmMain.");
             }
@@ -124,7 +134,31 @@ namespace HuntBot.App
             _aw.EventAvatarAdd += EventAvatarAdd;
             _aw.EventAvatarDelete += EventAvatarDelete;
             _aw.EventChat += EventChat;
+            _aw.EventObjectClick += EventObjectClick;
         }
+
+        private void EventObjectClick(IInstance sender)
+        {
+            try
+            {
+                var gameObject = JsonConvert.DeserializeObject<Models.GameObject>(sender.Attributes.ObjectDescription);
+
+                if (gameObject != null)
+                {
+                    //_mediator.Send(new ParticipantFoundObjectCommand(sender.Attributes.AvatarCitizen, sender.Attributes.ObjectId, gameObject.Points));
+
+                    _aw.Say($"You clicked an object worth {gameObject.Points} point(s).");
+                }
+            }
+            catch (JsonException ex)
+            {
+                // This object is not a game object, we should ignore it.
+            }
+        }
+
+        #endregion
+
+        #region Event Handlers
 
         private void EventAvatarDelete(IInstance sender)
         {
@@ -133,7 +167,7 @@ namespace HuntBot.App
         }
 
         private void EventChat(IInstance sender)
-        { 
+        {
             var speaker = _aw.Attributes.AvatarName;
             var message = _aw.Attributes.ChatMessage;
 
@@ -146,94 +180,9 @@ namespace HuntBot.App
             _logger.LogInformation($"{avatarName} has entered.");
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RtbSay_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(rtbSay.Text))
-            {
-                var message = rtbSay.Text;
+        #endregion
 
-                _aw.SayChannel(ChatChannels.Global, message);
-                DisplayChatMessage(_loginName, message);
-
-                rtbSay.Text = String.Empty;
-            }
-        }
-
-        /// <summary>
-        /// Handles the button click event for <see cref="btnLogin"/>, which initiates
-        /// the login process for the given credentials and location.
-        /// </summary>
-        /// <param name="sender">The object from which the event originated.</param>
-        /// <param name="e">Encapsulates event data.</param>
-        private async void btnLogin_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                var configuration = await SaveConfiguration();
-
-                _aw.Attributes.LoginOwner = configuration.CitizenNumber;
-                _aw.Attributes.LoginPrivilegePassword = configuration.PrivilegePassword;
-                _aw.Attributes.LoginApplication = this.ProductName;
-                _aw.Attributes.LoginName = _loginName;
-
-                var result = _aw.Login();
-                awTimer.Start();
-            }
-            catch (Exception ex) 
-            {
-                _logger.LogError(ex, ex.Message); 
-            }
-        }
-
-        /// <summary>
-        /// Handles the button click event for <see cref="btnSave"/>, which initiates
-        /// the process to save the current state of the configuration fields.
-        /// </summary>
-        /// <param name="sender">The object from which the event originated.</param>
-        /// <param name="e">Encapsulates event data.</param>
-        private async void btnSave_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                _huntbotConfiguration = await SaveConfiguration();
-
-                MessageBox.Show("Save Successful!");
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError(ex, "Failed to save HuntBot configuration.");
-            }
-        }
-
-        /// <summary>
-        /// Displays a givern chat message in the <see cref="rtbChat"/> chat box.
-        /// </summary>
-        /// <param name="speaker">The message speaker.</param>
-        /// <param name="message">The message to display.</param>
-        private void DisplayChatMessage(string speaker, string message)
-        {
-            rtbChat.AppendText($"{speaker}:\t{message}{Environment.NewLine}");
-        }
-
-        private async Task<HuntBotConfig> SaveConfiguration()
-        {
-            if (!int.TryParse(txtCitizenNumber.Text, out var citizenNumber))
-            {
-                throw new ArgumentException("You must enter a valid citizen number.");
-            }
-
-            if (!int.TryParse(txtPort.Text, out int port))
-            {
-                throw new ArgumentException("You must enter a valid port.");
-            }
-
-            return await _mediator.Send(new SaveHuntBotConfigurationCommand(txtHost.Text, port, citizenNumber, txtPrivilegePassword.Text, txtGameName.Text, txtGameLocation.Text));
-        }
+        #region Callbacks
 
         /// <summary>
         /// Callback handler which processes a <see cref="AW.AW_CALLBACK.AW_CALLBACK_LOGIN"/> callback.
@@ -285,6 +234,103 @@ namespace HuntBot.App
             await this.StartHuntBotGame();
         }
 
+        #endregion
+
+        #region Control Events Handlers
+
+        /// <summary>
+        /// Handles the button click event for <see cref="btnLogin"/>, which initiates
+        /// the login process for the given credentials and location.
+        /// </summary>
+        /// <param name="sender">The object from which the event originated.</param>
+        /// <param name="e">Encapsulates event data.</param>
+        private async void btnLogin_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var configuration = await SaveConfiguration();
+
+                _aw.Attributes.LoginOwner = configuration.CitizenNumber;
+                _aw.Attributes.LoginPrivilegePassword = configuration.PrivilegePassword;
+                _aw.Attributes.LoginApplication = this.ProductName;
+                _aw.Attributes.LoginName = _loginName;
+
+                var result = _aw.Login();
+                awTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RtbSay_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(rtbSay.Text))
+            {
+                var message = rtbSay.Text;
+
+                _aw.SayChannel(ChatChannels.Global, message);
+                DisplayChatMessage(_loginName, message);
+
+                rtbSay.Text = String.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Handles the button click event for <see cref="btnSave"/>, which initiates
+        /// the process to save the current state of the configuration fields.
+        /// </summary>
+        /// <param name="sender">The object from which the event originated.</param>
+        /// <param name="e">Encapsulates event data.</param>
+        private async void btnSave_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                _huntbotConfiguration = await SaveConfiguration();
+
+                MessageBox.Show("Save Successful!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to save HuntBot configuration.");
+            }
+        }
+
+        #endregion
+
+        #region Private Events
+
+        /// <summary>
+        /// Displays a givern chat message in the <see cref="rtbChat"/> chat box.
+        /// </summary>
+        /// <param name="speaker">The message speaker.</param>
+        /// <param name="message">The message to display.</param>
+        private void DisplayChatMessage(string speaker, string message)
+        {
+            rtbChat.AppendText($"{speaker}:\t{message}{Environment.NewLine}");
+        }
+
+        private async Task<HuntBotConfig> SaveConfiguration()
+        {
+            if (!int.TryParse(txtCitizenNumber.Text, out var citizenNumber))
+            {
+                throw new ArgumentException("You must enter a valid citizen number.");
+            }
+
+            if (!int.TryParse(txtPort.Text, out int port))
+            {
+                throw new ArgumentException("You must enter a valid port.");
+            }
+
+            return await _mediator.Send(new SaveHuntBotConfigurationCommand(txtHost.Text, port, citizenNumber, txtPrivilegePassword.Text, txtGameName.Text, txtGameLocation.Text));
+        }
+
         private async Task StartHuntBotGame()
         {
             var existingGames = await _mediator.Send(new GetHuntBotGamesQuery());
@@ -292,7 +338,7 @@ namespace HuntBot.App
 
             if (_huntBotGame is null)
             {
-                _huntBotGame = await _mediator.Send(new CreateNewHuntBotGameCommand(_huntbotConfiguration.GameName, DateTime.UtcNow, DateTime.MaxValue));
+                _huntBotGame = await _mediator.Send(new CreateNewHuntBotGameCommand(_huntbotConfiguration.GameName, DateTime.UtcNow.AddSeconds(10), DateTime.MaxValue));
             }
         }
 
@@ -306,6 +352,7 @@ namespace HuntBot.App
         {
             Utility.Wait(0);
         }
+
+        #endregion
     }
 }
- 

@@ -1,4 +1,4 @@
-﻿namespace HuntBot.App
+﻿namespace HuntBot.UI
 {
     partial class FrmMain
     {
@@ -190,6 +190,7 @@
             this.rtbChat.Enabled = false;
             this.rtbChat.Location = new System.Drawing.Point(4, 19);
             this.rtbChat.Name = "rtbChat";
+            this.rtbChat.ReadOnly = true;
             this.rtbChat.Size = new System.Drawing.Size(573, 315);
             this.rtbChat.TabIndex = 0;
             this.rtbChat.Text = "";
